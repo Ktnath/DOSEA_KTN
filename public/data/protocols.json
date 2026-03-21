@@ -1,0 +1,74 @@
+[
+  {
+    "id": "p-paludisme-grave",
+    "name": "Paludisme Grave (MSF)",
+    "description": "Prise en charge du paludisme sévère avec signes de danger ou vomissements incoercibles.",
+    "source": "Guide MSF Pédiatrie",
+    "drugs": [
+      {
+        "drugName": "Artésunate",
+        "indicationOverride": "IV lente à H0, H12, H24"
+      },
+      {
+        "drugName": "Paracétamol",
+        "indicationOverride": "Fièvre > 38.5°C"
+      },
+      {
+        "drugName": "Diazépam",
+        "indicationOverride": "Si convulsions"
+      }
+    ]
+  },
+  {
+    "id": "p-sepsis-neo",
+    "name": "Sepsis Néonatal Précoce",
+    "description": "Antibiothérapie probabiliste 1ère ligne pour infection maternelle ou signes de sepsis chez le nouveau-né.",
+    "source": "CHU Sainte-Justine",
+    "drugs": [
+      {
+        "drugName": "Ampicilline",
+        "indicationOverride": "Couverture Listeria / Strepto B"
+      },
+      {
+        "drugName": "Gentamicine",
+        "indicationOverride": "Couverture BGN"
+      }
+    ]
+  },
+  {
+    "id": "p-asthme-aigu",
+    "name": "Crise d'Asthme Sévère",
+    "description": "Traitement de la crise d'asthme avec détresse respiratoire.",
+    "source": "Guide MSF / Urgences",
+    "drugs": [
+      {
+        "drugName": "Salbutamol (nébulisation)",
+        "indicationOverride": "Répéter toutes les 20 min si besoin"
+      },
+      {
+        "drugName": "Prednisolone",
+        "indicationOverride": "Corticothérapie systémique (PO)"
+      }
+    ]
+  },
+  {
+    "id": "p-choc-anaphylactique",
+    "name": "Choc Anaphylactique",
+    "description": "Urgence vitale absolue - Allergie sévère avec atteinte respiratoire ou hémodynamique.",
+    "source": "Recommandations Internationales",
+    "drugs": [
+      {
+        "drugName": "Adrénaline (Épinéphrine)",
+        "indicationOverride": "IM stricte (face antérolatérale cuisse)"
+      },
+      {
+        "drugName": "Salbutamol (nébulisation)",
+        "indicationOverride": "Si bronchospasme persistant"
+      },
+      {
+        "drugName": "Hydrocortisone",
+        "indicationOverride": "Prévention phase biphasique (IV)"
+      }
+    ]
+  }
+]

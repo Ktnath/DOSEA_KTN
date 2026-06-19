@@ -7,6 +7,7 @@ import {
   DrugsFileSchema,
   ProtocolsFileSchema,
 } from '../src/domain/data/medicalDataSchema';
+import { PilotDrugsV2FileSchema } from '../src/domain/medicalModel/medicalModelSchema';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.resolve(__dirname, '..', 'public', 'data');
@@ -71,6 +72,23 @@ if (drugsResult.success && protocolsResult.success) {
   } else {
     console.log('OK   références protocols.json -> drugs.json cohérentes');
   }
+}
+
+try {
+  const pilotModule = await import('../src/domain/medicalModel/pilotDrugs.v2');
+  const pilotDrugsV2 = pilotModule.pilotDrugsV2;
+  const pilotResult = PilotDrugsV2FileSchema.safeParse(pilotDrugsV2);
+  if (!pilotResult.success) {
+    hasError = true;
+    console.error(`FAIL pilotDrugs.v2 (${pilotResult.error.issues.length} erreur(s)):`);
+    console.error(formatIssues(pilotResult.error));
+  } else {
+    console.log(`OK   pilotDrugs.v2 (${pilotResult.data.length} médicament(s) V2 valides)`);
+  }
+} catch (error) {
+  console.log(
+    `SKIP pilotDrugs.v2: module non trouvé ou non importable (${(error as Error).message})`,
+  );
 }
 
 if (hasError) {

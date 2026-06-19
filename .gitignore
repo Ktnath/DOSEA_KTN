@@ -11,6 +11,11 @@ node_modules
 dist
 dist-ssr
 
+# TypeScript build info / project references output
+*.tsbuildinfo
+vite.config.d.ts
+capacitor.config.d.ts
+
 # Editor
 .vscode/*
 !.vscode/extensions.json

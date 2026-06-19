@@ -19,6 +19,9 @@ jobs:
   build-debug-apk:
     name: Build debug APK
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.daemon=false
 
     steps:
       - name: Checkout
@@ -47,21 +50,22 @@ jobs:
 
       - name: Generate and sync Android project
         run: |
-          if [ ! -d android ]; then
-            npx cap add android
-          fi
+          npx cap add android || true
           npx cap sync android
+          test -f android/gradlew
+          test -f android/app/build.gradle
 
       - name: Build debug APK
         run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew :app:assembleDebug --stacktrace --info --no-daemon
 
       - name: Rename APK
         run: |
           mkdir -p apk-output
           cp android/app/build/outputs/apk/debug/app-debug.apk apk-output/DOSEA-debug.apk
+          ls -lh apk-output/DOSEA-debug.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -69,3 +73,14 @@ jobs:
           name: DOSEA-debug-apk
           path: apk-output/DOSEA-debug.apk
           retention-days: 14
+
+      - name: Upload Android build reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DOSEA-android-build-debug-logs
+          path: |
+            android/**/build/reports/**
+            android/**/outputs/logs/**
+          if-no-files-found: ignore
+          retention-days: 7

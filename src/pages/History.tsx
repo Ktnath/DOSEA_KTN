@@ -30,7 +30,7 @@ const History: React.FC = () => {
 
         doc.setFontSize(12);
         doc.text(`Prescrit par: ${profile.name || 'N/A'} (${profile.specialty || 'N/A'})`, 14, 40);
-        doc.text(`Date: ${new Date(prescription.date).toLocaleDateString('fr-FR')}`, 14, 47);
+        doc.text(`Date: ${new Date(prescription.date).toLocaleString('fr-FR')}`, 14, 47);
 
         doc.setLineWidth(0.5);
         doc.line(14, 55, 196, 55);
@@ -39,11 +39,38 @@ const History: React.FC = () => {
         doc.text("Détails de la Prescription", 14, 65);
 
         doc.setFontSize(12);
-        doc.text(`Patient: ${prescription.patientAgeYears} ans, ${prescription.patientWeightKg} kg`, 14, 75);
-        doc.text(`Médicament: ${prescription.drugName}`, 14, 82);
-        doc.text(`Posologie calculée: ${prescription.calculatedDoseMg} mg par prise`, 14, 89);
+        let y = 75;
+        const line = (text: string) => { doc.text(text, 14, y); y += 7; };
+
+        line(`Patient: ${prescription.patientAgeYears} ans, ${prescription.patientWeightKg} kg`);
+        if (prescription.patientId) line(`Identifiant patient (anonymisé): ${prescription.patientId}`);
+        line(`Médicament: ${prescription.drugName}`);
+        if (prescription.indication) line(`Indication: ${prescription.indication}`);
+        line(`Posologie calculée: ${prescription.calculatedDoseMg} mg par prise`);
         if (prescription.calculatedVolumeMl) {
-            doc.text(`Volume calculé: ${prescription.calculatedVolumeMl} ml`, 14, 96);
+            line(`Volume calculé: ${prescription.calculatedVolumeMl} ml${prescription.concentrationMgPerMl ? ` (concentration: ${prescription.concentrationMgPerMl} mg/ml)` : ''}`);
+        }
+        if (prescription.explanationFormula) line(`Formule: ${prescription.explanationFormula}`);
+        if (prescription.explanationSummary) {
+            const summaryLines = doc.splitTextToSize(`Résumé: ${prescription.explanationSummary}`, 180);
+            doc.text(summaryLines, 14, y);
+            y += summaryLines.length * 7;
+        }
+        if (prescription.source) {
+            const sourceLines = doc.splitTextToSize(`Source / règle: ${prescription.source}`, 180);
+            doc.text(sourceLines, 14, y);
+            y += sourceLines.length * 7;
+        }
+        if (prescription.alerts && prescription.alerts.length > 0) {
+            y += 3;
+            doc.setFontSize(13);
+            line('Alertes cliniques générées:');
+            doc.setFontSize(12);
+            prescription.alerts.forEach(a => {
+                const alertLines = doc.splitTextToSize(`- [${a.severity}] ${a.message}`, 180);
+                doc.text(alertLines, 14, y);
+                y += alertLines.length * 7;
+            });
         }
 
         doc.save(`prescription-${prescription.drugName}-${new Date(prescription.date).toISOString().split('T')[0]}.pdf`);
@@ -134,9 +161,13 @@ const History: React.FC = () => {
                             )}
                         </div>
                         <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                            <p><strong>Patient:</strong> {p.patientAgeYears} ans, {p.patientWeightKg} kg</p>
+                            <p><strong>Patient:</strong> {p.patientAgeYears} ans, {p.patientWeightKg} kg{p.patientId ? ` (ID: ${p.patientId})` : ''}</p>
+                            {p.indication && <p><strong>Indication:</strong> {p.indication}</p>}
                             <p><strong>Dose calculée:</strong> <span className="font-bold">{p.calculatedDoseMg} mg</span></p>
                             {p.calculatedVolumeMl && <p><strong>Volume:</strong> <span className="font-bold">{p.calculatedVolumeMl} ml</span></p>}
+                            {p.alerts && p.alerts.length > 0 && (
+                                <p><strong>Alertes:</strong> {p.alerts.length} générée(s)</p>
+                            )}
                         </div>
                     </div>
                 )) : (

@@ -2,6 +2,9 @@ import { create } from 'zustand';
 import { Drug, Prescription, UserProfile, Protocol } from '@/types';
 import { db } from '@/services/db';
 import { iapService } from '@/services/iapService';
+import { buildPrescriptionRecord } from '@/domain/history';
+import { calculatePrescription } from '@/domain/dosing';
+import type { PrescriptionCalculationResult } from '@/domain/dosing';
 
 type Theme = 'light' | 'dark';
 type ToastType = 'success' | 'error' | null;
@@ -52,7 +55,11 @@ interface AppState {
 
     // Active Session Management
     setActivePatient: (weight: number | null, age: number | null) => void;
-    addDrugToPrescription: (drug: Drug, calculatedDoseMg: number, calculatedVolumeMl?: number) => void;
+    addDrugToPrescription: (
+        drug: Drug,
+        result: PrescriptionCalculationResult,
+        options?: { patientId?: string; indication?: string }
+    ) => void;
     removeDrugFromPrescription: (drugId: number) => void;
     clearActivePrescriptions: () => void;
     loadProtocol: (protocolId: string) => void;
@@ -241,7 +248,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         }
     },
 
-    addDrugToPrescription: (drug, doseMg, volMl) => {
+    addDrugToPrescription: (drug, result, options) => {
         const { activePrescriptions, activeWeightKg, activeAgeYears } = get();
         if (!activeWeightKg) return; // Need weight
 
@@ -251,13 +258,20 @@ export const useAppStore = create<AppState>((set, get) => ({
             return;
         }
 
-        const newP: Prescription & { drug: Drug } = {
+        const record = buildPrescriptionRecord({
             drugId: drug.id!,
             drugName: drug.name,
+            patientId: options?.patientId,
             patientWeightKg: activeWeightKg,
             patientAgeYears: activeAgeYears || 0,
-            calculatedDoseMg: doseMg,
-            calculatedVolumeMl: volMl,
+            indication: options?.indication ?? drug.indications,
+            concentrationMgPerMl: drug.concentrationMgPerMl,
+            source: drug.notes,
+            result,
+        });
+
+        const newP: Prescription & { drug: Drug } = {
+            ...record,
             date: new Date().toISOString(),
             drug: drug
         };
@@ -283,14 +297,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         try {
             // We save them sequentially to indexedDB to keep things simple
             for (const item of activePrescriptions) {
-                const basePrescription: Omit<Prescription, 'date' | 'id'> = {
-                    drugId: item.drugId,
-                    drugName: item.drugName,
-                    patientWeightKg: item.patientWeightKg,
-                    patientAgeYears: item.patientAgeYears,
-                    calculatedDoseMg: item.calculatedDoseMg,
-                    calculatedVolumeMl: item.calculatedVolumeMl
-                };
+                const { drug, date, id, ...basePrescription } = item;
                 await addPrescription(basePrescription);
             }
             get().clearActivePrescriptions();
@@ -319,20 +326,26 @@ export const useAppStore = create<AppState>((set, get) => ({
             }
 
             if (matchedDrug) {
-                // Calculate dose based on current weight
-                let expectedDose = activeWeightKg * matchedDrug.recommendedDoseMgPerKg;
-                if (matchedDrug.maxDoseMg && expectedDose > matchedDrug.maxDoseMg) expectedDose = matchedDrug.maxDoseMg;
-
-                let expectedVol = undefined;
-                if (matchedDrug.concentrationMgPerMl) {
-                    expectedVol = parseFloat((expectedDose / matchedDrug.concentrationMgPerMl).toFixed(2));
-                }
+                const result = calculatePrescription({
+                    weightKg: activeWeightKg,
+                    ageDays: activeAgeYears != null ? Math.round(activeAgeYears * 365.25) : undefined,
+                    doseMgPerKg: matchedDrug.recommendedDoseMgPerKg,
+                    maxDoseMg: matchedDrug.maxDoseMg,
+                    maxDailyDoseMg: matchedDrug.maxDailyDoseMg,
+                    frequencyPerDay: matchedDrug.frequencyPerDay,
+                    concentrationMgPerMl: matchedDrug.concentrationMgPerMl,
+                    drugName: matchedDrug.name,
+                    drugClass: matchedDrug.class,
+                    drugSubClass: matchedDrug.subClass,
+                });
 
                 // Note: we can't easily prevent the "already in queue" toast spanning if we reuse addDrugToPrescription directly,
                 // but it works logically.
                 const currentQueue = get().activePrescriptions;
                 if (!currentQueue.some(p => p.drugId === matchedDrug.id)) {
-                    addDrugToPrescription(matchedDrug, parseFloat(expectedDose.toFixed(1)), expectedVol);
+                    addDrugToPrescription(matchedDrug, result, {
+                        indication: pDrug.indicationOverride ?? `Protocole : ${protocol.name}`,
+                    });
                     loadedCount++;
                 }
             }

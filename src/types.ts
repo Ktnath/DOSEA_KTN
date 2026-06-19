@@ -41,14 +41,28 @@ export interface Protocol {
     isEmergencyProtocol?: boolean; // Affiché dans le mode Urgence pédiatrique
 }
 
+export interface PrescriptionAlertRecord {
+    severity: 'info' | 'warning' | 'danger' | 'blocker';
+    code: string;
+    message: string;
+}
+
 export interface Prescription {
     id?: number;
     drugId: number;
     drugName: string;
+    /** Identifiant patient anonymisé, facultatif. Jamais un nom. */
+    patientId?: string;
     patientWeightKg: number;
     patientAgeYears: number;
+    indication?: string;
     calculatedDoseMg: number;
     calculatedVolumeMl?: number; // If concentration was available
+    concentrationMgPerMl?: number; // Concentration utilisée pour le calcul du volume
+    alerts?: PrescriptionAlertRecord[]; // Alertes cliniques générées au moment du calcul
+    source?: string; // Source / règle clinique ayant justifié la posologie (notes du médicament)
+    explanationFormula?: string; // Formule littérale utilisée par le moteur de dose
+    explanationSummary?: string; // Résumé en langage clair du calcul
     date: string;
 }
 

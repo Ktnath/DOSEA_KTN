@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppStore } from '@/store/useAppStore';
+import { calculatePrescription } from '@/domain/dosing';
 import { Mic, MicOff, Loader2 } from 'lucide-react';
 
 // SpeechRecognition Types for TypeScript
@@ -92,16 +93,19 @@ export const VoiceAssistant: React.FC = () => {
         }
 
         if (matchedDrug) {
-            // Calculate Dose
-            let expectedDose = weight * matchedDrug.recommendedDoseMgPerKg;
-            if (matchedDrug.maxDoseMg && expectedDose > matchedDrug.maxDoseMg) expectedDose = matchedDrug.maxDoseMg;
+            const result = calculatePrescription({
+                weightKg: weight,
+                doseMgPerKg: matchedDrug.recommendedDoseMgPerKg,
+                maxDoseMg: matchedDrug.maxDoseMg,
+                maxDailyDoseMg: matchedDrug.maxDailyDoseMg,
+                frequencyPerDay: matchedDrug.frequencyPerDay,
+                concentrationMgPerMl: matchedDrug.concentrationMgPerMl,
+                drugName: matchedDrug.name,
+                drugClass: matchedDrug.class,
+                drugSubClass: matchedDrug.subClass,
+            });
 
-            let expectedVol = undefined;
-            if (matchedDrug.concentrationMgPerMl) {
-                expectedVol = parseFloat((expectedDose / matchedDrug.concentrationMgPerMl).toFixed(2));
-            }
-
-            addDrugToPrescription(matchedDrug, parseFloat(expectedDose.toFixed(1)), expectedVol);
+            addDrugToPrescription(matchedDrug, result, { indication: 'Calcul vocal (urgence)' });
             showToast(`Calcul vocal : ${matchedDrug.name} pour ${weight}kg`, "success");
         } else {
             showToast("Médicament non reconnu. Répétez (ex: Adrénaline 10 kilos).", "error");

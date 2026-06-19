@@ -174,6 +174,7 @@ const Calculator: React.FC = () => {
 
     const [localWeight, setLocalWeight] = useState(activeWeightKg ? activeWeightKg.toString() : '');
     const [localAge, setLocalAge] = useState(activeAgeYears ? activeAgeYears.toString() : '');
+    const [patientId, setPatientId] = useState('');
     const [selectedDrugId, setSelectedDrugId] = useState<string>('');
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [isWatchingAd, setIsWatchingAd] = useState(false);
@@ -241,11 +242,9 @@ const Calculator: React.FC = () => {
 
         if (selectedDrug) {
             const { result } = calculation;
-            addDrugToPrescription(
-                selectedDrug,
-                result.dose.doseMg,
-                result.volume?.volumeMl
-            );
+            addDrugToPrescription(selectedDrug, result, {
+                patientId: patientId.trim() || undefined,
+            });
             setSelectedDrugId('');
         }
     };
@@ -305,6 +304,19 @@ const Calculator: React.FC = () => {
                                     placeholder="ex: 2.5"
                                 />
                             </div>
+                        </div>
+                        <div className="mt-4">
+                            <label htmlFor="patientId" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Identifiant patient anonymisé (facultatif)
+                            </label>
+                            <input
+                                type="text"
+                                id="patientId"
+                                value={patientId}
+                                onChange={e => setPatientId(e.target.value)}
+                                className="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                                placeholder="ex: ANON-0F3A (jamais de nom)"
+                            />
                         </div>
                     </div>
 

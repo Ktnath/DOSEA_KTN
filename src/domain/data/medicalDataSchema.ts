@@ -79,6 +79,9 @@ export const ProtocolSchema = z.object({
   description: z.string().min(1, 'description ne doit pas être vide'),
   source: z.string().min(1, 'source ne doit pas être vide'),
   drugs: z.array(ProtocolDrugRefSchema).min(1, 'drugs doit contenir au moins un médicament'),
+  signs: z.array(z.string().min(1)).optional(),
+  alerts: z.array(z.string().min(1)).optional(),
+  isEmergencyProtocol: z.boolean().optional(),
 });
 
 export const ProtocolsFileSchema = z.array(ProtocolSchema).min(1, 'protocols.json ne doit pas être vide');

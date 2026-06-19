@@ -134,6 +134,42 @@ describe('ProtocolSchema', () => {
   it('rejette un drugName vide', () => {
     expect(ProtocolSchema.safeParse(validProtocol({ drugs: [{ drugName: '' }] })).success).toBe(false);
   });
+
+  it('accepte un protocole avec signs, alerts et isEmergencyProtocol', () => {
+    const result = ProtocolSchema.safeParse(
+      validProtocol({
+        signs: ['Détresse respiratoire'],
+        alerts: ['Ne pas retarder le traitement'],
+        isEmergencyProtocol: true,
+      }),
+    );
+    expect(result.success).toBe(true);
+  });
+
+  it('accepte un protocole sans signs/alerts (rétrocompatibilité)', () => {
+    expect(ProtocolSchema.safeParse(validProtocol()).success).toBe(true);
+  });
+
+  it('rejette un sign vide dans le tableau signs', () => {
+    expect(ProtocolSchema.safeParse(validProtocol({ signs: [''] })).success).toBe(false);
+  });
+});
+
+describe('ProtocolsFileSchema - protocoles d\'urgence pédiatrique', () => {
+  it('vérifie que les 4 protocoles d\'urgence attendus sont marqués isEmergencyProtocol et documentés', () => {
+    const result = ProtocolsFileSchema.safeParse(protocolsFixture);
+    if (!result.success) throw new Error(JSON.stringify(result.error.issues, null, 2));
+
+    const expectedIds = ['p-paludisme-grave', 'p-sepsis-neo', 'p-asthme-aigu', 'p-choc-anaphylactique'];
+    for (const id of expectedIds) {
+      const protocol = result.data.find((p) => p.id === id);
+      expect(protocol).toBeDefined();
+      expect(protocol?.isEmergencyProtocol).toBe(true);
+      expect(protocol?.signs?.length).toBeGreaterThan(0);
+      expect(protocol?.alerts?.length).toBeGreaterThan(0);
+      expect(protocol?.source.length).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe('ProtocolsFileSchema', () => {

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import BlantyreScore from '@/components/scores/BlantyreScore';
 import DehydrationScore from '@/components/scores/DehydrationScore';
 import MalnutritionScore from '@/components/scores/MalnutritionScore';
+import EmergencyProtocols from '@/components/scores/EmergencyProtocols';
 
 const ScoresLayout: React.FC = () => {
-    const [activeScore, setActiveScore] = useState<'blantyre' | 'dehydration' | 'malnutrition' | null>(null);
+    const [activeScore, setActiveScore] = useState<'blantyre' | 'dehydration' | 'malnutrition' | 'emergency' | null>(null);
 
     return (
         <div className="space-y-6 pb-20">
@@ -35,6 +36,14 @@ const ScoresLayout: React.FC = () => {
                     <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200">Malnutrition (MUAC)</h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Périmètre brachial et recherche d'œdèmes.</p>
                 </button>
+
+                <button
+                    onClick={() => setActiveScore('emergency')}
+                    className={`p-4 rounded-xl border-2 text-left transition-all shadow-sm ${activeScore === 'emergency' ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-red-400/50'}`}
+                >
+                    <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200">Urgence Pédiatrique</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Protocoles d'urgence sous forme d'étapes actionnables (paludisme grave, sepsis néonatal, asthme sévère, choc anaphylactique).</p>
+                </button>
             </div>
 
             {/* Active Score View */}
@@ -42,6 +51,7 @@ const ScoresLayout: React.FC = () => {
                 {activeScore === 'blantyre' && <BlantyreScore />}
                 {activeScore === 'dehydration' && <DehydrationScore />}
                 {activeScore === 'malnutrition' && <MalnutritionScore />}
+                {activeScore === 'emergency' && <EmergencyProtocols />}
                 {!activeScore && (
                     <div className="text-center p-8 text-gray-500 dark:text-gray-400">
                         Sélectionnez un outil d'évaluation clinique ci-dessus pour commencer.

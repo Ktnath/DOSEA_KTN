@@ -35,6 +35,10 @@ export interface Protocol {
     description: string;
     source: string;
     drugs: ProtocolDrug[];
+    // Champs optionnels pour le mode "Urgence pédiatrique" (étapes actionnables).
+    signs?: string[]; // Signes / situation cliniques évoquant le protocole
+    alerts?: string[]; // Points de vigilance / alertes de sécurité
+    isEmergencyProtocol?: boolean; // Affiché dans le mode Urgence pédiatrique
 }
 
 export interface Prescription {

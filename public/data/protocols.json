@@ -4,6 +4,20 @@
     "name": "Paludisme Grave (MSF)",
     "description": "Prise en charge du paludisme sévère avec signes de danger ou vomissements incoercibles.",
     "source": "Guide MSF Pédiatrie",
+    "isEmergencyProtocol": true,
+    "signs": [
+      "Troubles de la conscience / prostration",
+      "Convulsions répétées",
+      "Détresse respiratoire",
+      "Vomissements incoercibles (voie orale impossible)",
+      "Anémie sévère ou ictère",
+      "Hypoglycémie"
+    ],
+    "alerts": [
+      "Ne pas retarder l'antipaludéen IV en attendant la confirmation biologique si suspicion forte",
+      "Surveiller la glycémie (risque d'hypoglycémie sous artésunate)",
+      "Hospitalisation systématique"
+    ],
     "drugs": [
       {
         "drugName": "Artésunate",
@@ -24,6 +38,20 @@
     "name": "Sepsis Néonatal Précoce",
     "description": "Antibiothérapie probabiliste 1ère ligne pour infection maternelle ou signes de sepsis chez le nouveau-né.",
     "source": "CHU Sainte-Justine",
+    "isEmergencyProtocol": true,
+    "signs": [
+      "Instabilité thermique (fièvre ou hypothermie)",
+      "Détresse respiratoire",
+      "Teint gris / marbré, temps de recoloration cutanée allongé",
+      "Hypotonie, léthargie, refus de téter",
+      "Tachycardie ou bradycardie",
+      "Facteurs de risque maternels (rupture prolongée des membranes, fièvre maternelle, portage Strepto B)"
+    ],
+    "alerts": [
+      "Ne pas retarder l'antibiothérapie probabiliste devant une suspicion clinique",
+      "Prélever les cultures (hémoculture) avant la première dose si possible, sans retarder le traitement",
+      "Adapter l'intervalle de Gentamicine à l'âge postmenstruel (cf. notes médicament)"
+    ],
     "drugs": [
       {
         "drugName": "Ampicilline",
@@ -40,6 +68,20 @@
     "name": "Crise d'Asthme Sévère",
     "description": "Traitement de la crise d'asthme avec détresse respiratoire.",
     "source": "Guide MSF / Urgences",
+    "isEmergencyProtocol": true,
+    "signs": [
+      "Difficulté à parler ou à téter",
+      "Tirage / mise en jeu des muscles accessoires",
+      "Fréquence respiratoire élevée",
+      "SpO2 basse",
+      "Sibilants diminués ou silence auscultatoire (signe de gravité)",
+      "Cyanose"
+    ],
+    "alerts": [
+      "Le silence auscultatoire ou l'épuisement respiratoire sont des signes d'urgence vitale",
+      "Ne pas retarder la corticothérapie systémique",
+      "Surveiller la SpO2 en continu"
+    ],
     "drugs": [
       {
         "drugName": "Salbutamol (nébulisation)",
@@ -56,6 +98,19 @@
     "name": "Choc Anaphylactique",
     "description": "Urgence vitale absolue - Allergie sévère avec atteinte respiratoire ou hémodynamique.",
     "source": "Recommandations Internationales",
+    "isEmergencyProtocol": true,
+    "signs": [
+      "Urticaire / angio-œdème d'apparition brutale",
+      "Stridor ou bronchospasme",
+      "Hypotension, tachycardie",
+      "Vomissements, douleurs abdominales",
+      "Sensation de malaise intense / mort imminente"
+    ],
+    "alerts": [
+      "L'adrénaline IM est le traitement de première intention, à administrer sans délai",
+      "Position allongée jambes surélevées, sauf en cas de détresse respiratoire",
+      "Surveillance prolongée après stabilisation (risque de réaction biphasique)"
+    ],
     "drugs": [
       {
         "drugName": "Adrénaline (Épinéphrine)",

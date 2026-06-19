@@ -2,15 +2,18 @@ import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { Send, Bot, User, Loader2 } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
+import { buildAssistantSystemInstruction, detectDoseRequest } from '@/domain/assistant/assistantGuard';
 
 interface Message {
     role: 'user' | 'assistant';
     content: string;
 }
 
+const DOSE_REDIRECT_MESSAGE = "Je ne calcule pas de doses : merci d'utiliser le calculateur sécurisé de D.O.S.E.A. pour obtenir une posologie fiable et traçable.";
+
 const Assistant: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([
-        { role: 'assistant', content: "Bonjour Docteur. Je suis votre assistant D.O.S.E.A. Comment puis-je vous aider aujourd'hui ? Je peux vous conseiller sur des posologies ou des protocoles pédiatriques." }
+        { role: 'assistant', content: "Bonjour Docteur. Je suis votre assistant D.O.S.E.A. Je peux vous aider à rechercher un médicament, expliquer un protocole déjà calculé ou vous orienter dans l'application. L'IA n'effectue pas les calculs de dose. Utilisez le calculateur sécurisé." }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -32,21 +35,23 @@ const Assistant: React.FC = () => {
         const userMsg = input.trim();
         setInput('');
         setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+
+        if (detectDoseRequest(userMsg)) {
+            setMessages(prev => [...prev, { role: 'assistant', content: DOSE_REDIRECT_MESSAGE }]);
+            return;
+        }
+
         setIsLoading(true);
 
         try {
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const drugContext = drugs.map(d => `${d.name} (${d.class}): ${d.recommendedDoseMgPerKg}mg/kg, max ${d.maxDoseMg}mg`).join('\n');
+            const drugContext = drugs.map(d => ({ name: d.name, class: d.class }));
 
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-preview-05-20',
                 contents: userMsg,
                 config: {
-                    systemInstruction: `Tu es un assistant clinique expert en pédiatrie pour l'application D.O.S.E.A. 
-                    Ton rôle est d'aider les médecins avec des calculs de doses, des conseils sur les médicaments et des protocoles cliniques. 
-                    Sois précis, professionnel et concis. 
-                    Voici les médicaments actuellement dans la base de données de l'utilisateur :\n${drugContext}\n
-                    Avertis toujours que tes réponses sont des suggestions et que la décision finale revient au clinicien.`,
+                    systemInstruction: buildAssistantSystemInstruction(drugContext),
                 },
             });
 
@@ -65,7 +70,7 @@ const Assistant: React.FC = () => {
                 <Bot size={24} />
                 <div>
                     <h2 className="font-bold">Assistant Clinique IA</h2>
-                    <p className="text-xs opacity-80">Propulsé par Gemini</p>
+                    <p className="text-xs opacity-80">L'IA n'effectue pas les calculs de dose. Utilisez le calculateur sécurisé.</p>
                 </div>
             </div>
 

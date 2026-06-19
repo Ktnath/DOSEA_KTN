@@ -2,8 +2,8 @@ import { create } from 'zustand';
 import { Drug, Prescription, UserProfile, Protocol } from '@/types';
 import { db } from '@/services/db';
 import { iapService } from '@/services/iapService';
-import { buildPrescriptionRecord } from '@/domain/history';
-import { calculatePrescription } from '@/domain/dosing';
+import { buildPrescriptionRecord, recalculatePrescriptionForWeight } from '@/domain/history';
+import { calculatePrescription, DosingError } from '@/domain/dosing';
 import type { PrescriptionCalculationResult } from '@/domain/dosing';
 
 type Theme = 'light' | 'dark';
@@ -223,26 +223,24 @@ export const useAppStore = create<AppState>((set, get) => ({
     // Session / Multiple Prescriptions logic
     setActivePatient: (weight, age) => {
         set({ activeWeightKg: weight, activeAgeYears: age });
-        // Recalculate existing active prescriptions if weight changes
+        // Recalculate existing active prescriptions if weight changes, always via calculatePrescription.
         const { activePrescriptions, drugs } = get();
         if (weight !== null && activePrescriptions.length > 0) {
             const updated = activePrescriptions.map(ap => {
                 const drugRef = drugs.find(d => d.id === ap.drug.id) || ap.drug;
-                let newDose = weight * drugRef.recommendedDoseMgPerKg;
-                if (drugRef.maxDoseMg && newDose > drugRef.maxDoseMg) newDose = drugRef.maxDoseMg;
-
-                let newVol = undefined;
-                if (drugRef.concentrationMgPerMl) {
-                    newVol = parseFloat((newDose / drugRef.concentrationMgPerMl).toFixed(2));
+                try {
+                    return recalculatePrescriptionForWeight({
+                        prescription: { ...ap, drug: drugRef },
+                        weightKg: weight,
+                        ageYears: age,
+                    });
+                } catch (e) {
+                    if (e instanceof DosingError) {
+                        get().showToast(`Recalcul impossible pour ${ap.drugName} : ${e.message}`, 'error');
+                        return ap;
+                    }
+                    throw e;
                 }
-
-                return {
-                    ...ap,
-                    patientWeightKg: weight,
-                    patientAgeYears: age || ap.patientAgeYears,
-                    calculatedDoseMg: parseFloat(newDose.toFixed(1)),
-                    calculatedVolumeMl: newVol
-                };
             });
             set({ activePrescriptions: updated });
         }

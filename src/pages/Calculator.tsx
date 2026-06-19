@@ -2,10 +2,162 @@ import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppStore } from '@/store/useAppStore';
 import { Drug } from '@/types';
-import { Star, AlertTriangle, PlayCircle, Plus } from 'lucide-react';
+import { Star, AlertTriangle, AlertOctagon, Info, PlayCircle, Plus } from 'lucide-react';
 import { ProtocolSelector } from '@/components/ProtocolSelector';
 import { PrescriptionCart } from '@/components/PrescriptionCart';
 import { VoiceAssistant } from '@/components/VoiceAssistant';
+import {
+    calculatePrescription,
+    DosingError,
+    PrescriptionCalculationResult,
+} from '@/domain/dosing';
+
+const DAYS_PER_YEAR = 365.25;
+
+type DisplaySeverity = 'info' | 'warning' | 'danger' | 'blocker';
+
+interface DisplayAlert {
+    severity: DisplaySeverity;
+    message: string;
+}
+
+const SEVERITY_RANK: Record<DisplaySeverity, number> = {
+    blocker: 0,
+    danger: 1,
+    warning: 2,
+    info: 3,
+};
+
+const SEVERITY_STYLES: Record<DisplaySeverity, string> = {
+    blocker: 'bg-red-700 text-white border-red-900',
+    danger: 'bg-red-600 text-white border-red-800',
+    warning: 'bg-yellow-100 text-yellow-900 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-200 dark:border-yellow-700',
+    info: 'bg-blue-50 text-blue-900 border-blue-200 dark:bg-blue-900/20 dark:text-blue-200 dark:border-blue-800',
+};
+
+/** Calcule les alertes à afficher en combinant les messages du moteur de dose et du ClinicalSafetyEngine, sans en reformuler le texte. */
+function buildDisplayAlerts(result: PrescriptionCalculationResult): DisplayAlert[] {
+    const alerts: DisplayAlert[] = result.clinicalAlerts.map((a) => ({
+        severity: a.severity,
+        message: a.message,
+    }));
+
+    // Les messages de doseSafety sont émis dans cet ordre fixe par checkDoseSafety.
+    let messageIndex = 0;
+    if (result.dose.wasCapped) {
+        alerts.push({ severity: 'warning', message: result.doseSafety.messages[messageIndex] });
+        messageIndex++;
+    }
+    if (result.dose.exceedsMaxDailyDose) {
+        alerts.push({ severity: 'danger', message: result.doseSafety.messages[messageIndex] });
+        messageIndex++;
+    }
+
+    return alerts.sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity]);
+}
+
+const PrescriptionPreview: React.FC<{ drug: Drug; result: PrescriptionCalculationResult }> = ({
+    drug,
+    result,
+}) => {
+    const alerts = useMemo(() => buildDisplayAlerts(result), [result]);
+    const criticalAlerts = alerts.filter((a) => a.severity === 'danger' || a.severity === 'blocker');
+    const minorAlerts = alerts.filter((a) => a.severity === 'warning' || a.severity === 'info');
+
+    return (
+        <div className="mt-4 space-y-3">
+            {/* Alertes danger/blocker : visuellement impossibles à manquer */}
+            {criticalAlerts.map((a, i) => (
+                <div
+                    key={i}
+                    role="alert"
+                    className={`flex items-start gap-3 p-4 rounded-lg border-2 shadow-lg ${SEVERITY_STYLES[a.severity]}`}
+                >
+                    <AlertOctagon size={28} className="flex-shrink-0" />
+                    <div>
+                        <p className="text-xs font-extrabold uppercase tracking-wide">
+                            {a.severity === 'blocker' ? 'Alerte bloquante' : 'Alerte de sécurité'}
+                        </p>
+                        <p className="font-bold text-sm leading-snug mt-0.5">{a.message}</p>
+                    </div>
+                </div>
+            ))}
+
+            <div className="bg-gray-50 dark:bg-gray-700/40 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-extrabold text-primary-dark dark:text-primary-light">
+                        {result.dose.doseMg} mg
+                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">par prise</span>
+                </div>
+                {result.volume && (
+                    <p className="text-gray-700 dark:text-gray-300 font-medium mt-1">
+                        soit {result.volume.volumeMl} mL (à {drug.concentrationMgPerMl} mg/mL)
+                    </p>
+                )}
+
+                <dl className="grid grid-cols-2 gap-3 mt-4 text-sm">
+                    <div>
+                        <dt className="text-gray-500 dark:text-gray-400">Fréquence</dt>
+                        <dd className="font-semibold text-gray-800 dark:text-gray-200">
+                            {drug.frequencyPerDay ? `${drug.frequencyPerDay} fois / jour` : 'Non spécifiée'}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt className="text-gray-500 dark:text-gray-400">Intervalle minimal</dt>
+                        <dd className="font-semibold text-gray-800 dark:text-gray-200">
+                            {drug.minIntervalHours ? `≥ ${drug.minIntervalHours} h` : 'Non spécifié'}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt className="text-gray-500 dark:text-gray-400">Dose maximale / prise</dt>
+                        <dd className="font-semibold text-gray-800 dark:text-gray-200">{drug.maxDoseMg} mg</dd>
+                    </div>
+                    {drug.maxDailyDoseMg !== undefined && (
+                        <div>
+                            <dt className="text-gray-500 dark:text-gray-400">Dose maximale / jour</dt>
+                            <dd className="font-semibold text-gray-800 dark:text-gray-200">
+                                {drug.maxDailyDoseMg} mg/j
+                            </dd>
+                        </div>
+                    )}
+                </dl>
+            </div>
+
+            {minorAlerts.length > 0 && (
+                <div className="space-y-2">
+                    {minorAlerts.map((a, i) => (
+                        <div
+                            key={i}
+                            className={`flex items-start gap-2 p-3 rounded-md border text-sm ${SEVERITY_STYLES[a.severity]}`}
+                        >
+                            {a.severity === 'warning' ? (
+                                <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />
+                            ) : (
+                                <Info size={16} className="flex-shrink-0 mt-0.5" />
+                            )}
+                            <span>{a.message}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            <details className="text-xs text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-gray-800/50 rounded-md p-3 border border-gray-100 dark:border-gray-700">
+                <summary className="cursor-pointer font-semibold text-gray-600 dark:text-gray-300">
+                    Comment ce calcul est obtenu
+                </summary>
+                <p className="mt-2 font-mono">{result.explanation.formula}</p>
+                <p className="mt-1">{result.explanation.summary}</p>
+                {drug.notes && (
+                    <p className="mt-2 italic">
+                        <span className="font-semibold">Source : </span>
+                        {drug.notes}
+                    </p>
+                )}
+            </details>
+        </div>
+    );
+};
 
 const Calculator: React.FC = () => {
     const {
@@ -38,11 +190,46 @@ const Calculator: React.FC = () => {
         setActivePatient(w, a);
     };
 
+    const ageDays = activeAgeYears != null ? Math.round(activeAgeYears * DAYS_PER_YEAR) : undefined;
+
+    const calculation = useMemo((): { result: PrescriptionCalculationResult } | { error: string } | null => {
+        if (!selectedDrug || !activeWeightKg) return null;
+        try {
+            const result = calculatePrescription({
+                weightKg: activeWeightKg,
+                ageDays,
+                doseMgPerKg: selectedDrug.recommendedDoseMgPerKg,
+                maxDoseMg: selectedDrug.maxDoseMg,
+                maxDailyDoseMg: selectedDrug.maxDailyDoseMg,
+                frequencyPerDay: selectedDrug.frequencyPerDay,
+                intervalHours: selectedDrug.minIntervalHours,
+                concentrationMgPerMl: selectedDrug.concentrationMgPerMl,
+                drugName: selectedDrug.name,
+                drugClass: selectedDrug.class,
+                drugSubClass: selectedDrug.subClass,
+            });
+            return { result };
+        } catch (e) {
+            return { error: e instanceof DosingError ? e.message : 'Erreur de calcul inattendue.' };
+        }
+    }, [selectedDrug, activeWeightKg, ageDays]);
+
+    const hasBlockingAlert = useMemo(() => {
+        if (!calculation) return false;
+        if ('error' in calculation) return true;
+        return buildDisplayAlerts(calculation.result).some((a) => a.severity === 'blocker');
+    }, [calculation]);
+
     const handleAddDrug = (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!activeWeightKg) {
             alert("Veuillez d'abord valider le poids du patient.");
+            return;
+        }
+
+        if (!calculation || 'error' in calculation) {
+            alert(calculation && 'error' in calculation ? calculation.error : 'Calcul indisponible.');
             return;
         }
 
@@ -52,21 +239,12 @@ const Calculator: React.FC = () => {
             return;
         }
 
-        if (selectedDrug && activeWeightKg) {
-            let doseInMg = activeWeightKg * selectedDrug.recommendedDoseMgPerKg;
-            if (selectedDrug.maxDoseMg && doseInMg > selectedDrug.maxDoseMg) {
-                doseInMg = selectedDrug.maxDoseMg;
-            }
-
-            let displayVolMl = undefined;
-            if (profile.unitPreference === 'ml' && selectedDrug.concentrationMgPerMl) {
-                displayVolMl = parseFloat((doseInMg / selectedDrug.concentrationMgPerMl).toFixed(2));
-            }
-
+        if (selectedDrug) {
+            const { result } = calculation;
             addDrugToPrescription(
                 selectedDrug,
-                parseFloat(doseInMg.toFixed(1)),
-                displayVolMl
+                result.dose.doseMg,
+                result.volume?.volumeMl
             );
             setSelectedDrugId('');
         }
@@ -165,10 +343,25 @@ const Calculator: React.FC = () => {
                                     ))}
                                 </select>
                             </div>
+
+                            {selectedDrug && activeWeightKg && calculation && 'result' in calculation && (
+                                <PrescriptionPreview drug={selectedDrug} result={calculation.result} />
+                            )}
+
+                            {selectedDrug && activeWeightKg && calculation && 'error' in calculation && (
+                                <div role="alert" className="mt-4 flex items-start gap-3 p-4 rounded-lg border-2 bg-red-700 text-white border-red-900 shadow-lg">
+                                    <AlertOctagon size={28} className="flex-shrink-0" />
+                                    <div>
+                                        <p className="text-xs font-extrabold uppercase tracking-wide">Alerte bloquante</p>
+                                        <p className="font-bold text-sm leading-snug mt-0.5">{calculation.error}</p>
+                                    </div>
+                                </div>
+                            )}
+
                             <button
                                 type="submit"
-                                disabled={!selectedDrugId || !activeWeightKg}
-                                className="w-full flex justify-center items-center gap-2 bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={!selectedDrugId || !activeWeightKg || hasBlockingAlert}
+                                className="w-full mt-4 flex justify-center items-center gap-2 bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Plus size={20} /> Ajouter à l'ordonnance
                             </button>

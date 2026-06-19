@@ -40,6 +40,19 @@ npx cap sync
 npx cap open android  # ou ios
 ```
 
+## Qualité / CI
+
+Avant d'ouvrir une pull request, lancer en local :
+
+```bash
+npm run typecheck
+npm run validate:data
+npm run test
+npm run build
+```
+
+Ces mêmes vérifications sont exécutées automatiquement par la CI GitHub Actions (`DOSEA Quality Gate`) sur chaque pull request et push vers `main`.
+
 ## Licence
 
 MIT

@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dosea.local/schemas/dosing_rules_v2.schema.json",
+  "title": "DOSEA Dosing Rules V2 validated review schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generated_at",
+    "records_count",
+    "rules"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "input_file": {
+      "type": "string"
+    },
+    "validation_basis": {
+      "type": "string"
+    },
+    "important_warning": {
+      "type": "string"
+    },
+    "records_count": {
+      "type": "integer"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "rule_id",
+          "drug",
+          "validated",
+          "clinical_context",
+          "dose_expression",
+          "sources",
+          "safety",
+          "implementation"
+        ],
+        "properties": {
+          "rule_id": {
+            "type": "string"
+          },
+          "source_excel_row_id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "drug": {
+            "type": "object"
+          },
+          "validated": {
+            "type": "object"
+          },
+          "clinical_context": {
+            "type": "object"
+          },
+          "dose_expression": {
+            "type": "object"
+          },
+          "sources": {
+            "type": "object"
+          },
+          "safety": {
+            "type": "object"
+          },
+          "implementation": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

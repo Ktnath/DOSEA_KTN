@@ -10,7 +10,7 @@ import type { PrescriptionCalculationResult } from '../dosing/calculatePrescript
 import type { Prescription, PrescriptionAlertRecord } from '../../types';
 
 export interface BuildPrescriptionRecordInput {
-  drugId: number;
+  drugId: number | string;
   drugName: string;
   /** Identifiant patient anonymisé, facultatif. Ne doit jamais contenir de nom. */
   patientId?: string;

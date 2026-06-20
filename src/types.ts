@@ -49,8 +49,10 @@ export interface PrescriptionAlertRecord {
 
 export interface Prescription {
     id?: number;
-    drugId: number;
+    drugId: number | string;
     drugName: string;
+    /** Moteur de dose ayant produit ce calcul. Absent (legacy) ou 'v1' = moteur historique (drugs.json) ; 'v2' = moteur déterministe dosingRulesV2 (base validée Dr KAPTO). */
+    engineVersion?: 'v1' | 'v2';
     /** Identifiant patient anonymisé, facultatif. Jamais un nom. */
     patientId?: string;
     patientWeightKg: number;

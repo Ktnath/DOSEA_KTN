@@ -26,7 +26,7 @@ export const PrescriptionCart: React.FC = () => {
 
             <div className="space-y-4 mb-6">
                 {activePrescriptions.map(p => {
-                    const isOverMax = p.drug.maxDoseMg && p.calculatedDoseMg > p.drug.maxDoseMg;
+                    const isOverMax = p.drug?.maxDoseMg && p.calculatedDoseMg > p.drug.maxDoseMg;
 
                     return (
                         <div key={p.drugId} className={`p-4 rounded-lg relative ${isOverMax ? 'bg-red-50 dark:bg-red-900/10 border border-red-200' : 'bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600'}`}>
@@ -38,7 +38,11 @@ export const PrescriptionCart: React.FC = () => {
                             </button>
 
                             <h4 className="font-bold text-primary-dark dark:text-primary-light text-lg pr-8">{p.drugName}</h4>
-                            <p className="text-xs text-gray-500 mb-2">{p.drug.class}</p>
+                            {p.drug ? (
+                                <p className="text-xs text-gray-500 mb-2">{p.drug.class}</p>
+                            ) : (
+                                p.source && <p className="text-xs text-gray-500 mb-2">{p.source}</p>
+                            )}
 
                             <div className="flex items-baseline gap-2 mt-2">
                                 <span className="text-2xl font-bold text-gray-800 dark:text-gray-100">{p.calculatedDoseMg} mg</span>
@@ -47,21 +51,38 @@ export const PrescriptionCart: React.FC = () => {
                                 )}
                             </div>
 
-                            {p.drug.dilution && (
+                            {p.drug?.dilution && (
                                 <IVFlowCalculator doseMg={p.calculatedDoseMg} dilution={p.drug.dilution} weightKg={p.patientWeightKg} />
                             )}
 
                             {isOverMax && (
                                 <div className="mt-2 text-xs flex items-center text-red-600 dark:text-red-400">
                                     <AlertTriangle size={14} className="mr-1" />
-                                    Dose calculée plafonnée au maximum de {p.drug.maxDoseMg} mg.
+                                    Dose calculée plafonnée au maximum de {p.drug!.maxDoseMg} mg.
                                 </div>
                             )}
 
-                            {p.drug.notes && (
+                            {p.drug?.notes && (
                                 <p className="mt-2 text-xs text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-gray-800/50 p-2 rounded italic">
                                     <span className="font-semibold text-secondary-dark">Notes : </span>{p.drug.notes}
                                 </p>
+                            )}
+
+                            {!p.drug && p.explanationFormula && (
+                                <p className="mt-2 text-xs text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-gray-800/50 p-2 rounded italic">
+                                    <span className="font-semibold text-secondary-dark">Formule : </span>{p.explanationFormula}
+                                </p>
+                            )}
+
+                            {!p.drug && p.alerts && p.alerts.length > 0 && (
+                                <div className="mt-2 space-y-1">
+                                    {p.alerts.map((a, i) => (
+                                        <div key={i} className="text-xs flex items-start text-amber-700 dark:text-amber-400">
+                                            <AlertTriangle size={14} className="mr-1 mt-0.5 shrink-0" />
+                                            <span>{a.message}</span>
+                                        </div>
+                                    ))}
+                                </div>
                             )}
                         </div>
                     );

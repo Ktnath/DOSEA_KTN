@@ -10,7 +10,8 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
-    "validate:data": "tsx scripts/validate-data.ts"
+    "validate:data": "tsx scripts/validate-data.ts",
+    "validate:dosing-v2": "tsx scripts/validate-dosing-rules-v2.ts"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.4",

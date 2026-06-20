@@ -5,6 +5,12 @@ import { iapService } from '@/services/iapService';
 import { buildPrescriptionRecord, recalculatePrescriptionForWeight } from '@/domain/history';
 import { calculatePrescription, DosingError } from '@/domain/dosing';
 import type { PrescriptionCalculationResult } from '@/domain/dosing';
+import {
+    DosingRuleV2MappingError,
+    mapDosingRuleToPrescription,
+    recalculateDosingRuleV2ForWeight,
+} from '@/domain/doseCalculatorV2';
+import type { DosingRuleEvaluationResult, DosingRuleEvaluationInput } from '@/domain/dosingRulesV2';
 
 type Theme = 'light' | 'dark';
 type ToastType = 'success' | 'error' | null;
@@ -31,7 +37,8 @@ interface AppState {
     // Active Session (Ordonnance Multiple)
     activeWeightKg: number | null;
     activeAgeYears: number | null;
-    activePrescriptions: (Prescription & { drug: Drug })[];
+    /** drug est absent pour les prescriptions issues du moteur V2 (dosingRulesV2) ; v2Input préserve le contexte clinique retenu, nécessaire au recalcul déterministe lors d'un changement de poids. */
+    activePrescriptions: (Prescription & { drug?: Drug; v2Input?: DosingRuleEvaluationInput })[];
     dailyCalculationCount: number;
     lastCalculationDate: string;
     adWatchUsedToday: boolean;
@@ -60,7 +67,13 @@ interface AppState {
         result: PrescriptionCalculationResult,
         options?: { patientId?: string; indication?: string }
     ) => void;
-    removeDrugFromPrescription: (drugId: number) => void;
+    /** Ajoute une prescription issue du moteur déterministe V2 (dosingRulesV2). N'accepte qu'un résultat déjà au statut 'calculated'. */
+    addDosingRuleV2ToPrescription: (
+        evaluation: DosingRuleEvaluationResult,
+        v2Input: DosingRuleEvaluationInput,
+        options?: { patientId?: string }
+    ) => void;
+    removeDrugFromPrescription: (drugId: number | string) => void;
     clearActivePrescriptions: () => void;
     loadProtocol: (protocolId: string) => void;
     saveActivePrescriptionsToHistory: () => Promise<void>;
@@ -223,11 +236,24 @@ export const useAppStore = create<AppState>((set, get) => ({
     // Session / Multiple Prescriptions logic
     setActivePatient: (weight, age) => {
         set({ activeWeightKg: weight, activeAgeYears: age });
-        // Recalculate existing active prescriptions if weight changes, always via calculatePrescription.
+        // Recalculate existing active prescriptions if weight changes, always via le moteur (V1 ou V2) ayant produit la prescription.
         const { activePrescriptions, drugs } = get();
         if (weight !== null && activePrescriptions.length > 0) {
             const updated = activePrescriptions.map(ap => {
-                const drugRef = drugs.find(d => d.id === ap.drug.id) || ap.drug;
+                if (ap.engineVersion === 'v2') {
+                    if (!ap.v2Input) return ap;
+                    try {
+                        return { ...ap, ...recalculateDosingRuleV2ForWeight({ prescription: ap, v2Input: ap.v2Input, weightKg: weight, ageYears: age }) };
+                    } catch (e) {
+                        if (e instanceof DosingRuleV2MappingError) {
+                            get().showToast(`Recalcul impossible pour ${ap.drugName} : ${e.message}`, 'error');
+                            return ap;
+                        }
+                        throw e;
+                    }
+                }
+                if (!ap.drug) return ap;
+                const drugRef = drugs.find(d => d.id === ap.drug!.id) || ap.drug;
                 try {
                     return recalculatePrescriptionForWeight({
                         prescription: { ...ap, drug: drugRef },
@@ -276,6 +302,39 @@ export const useAppStore = create<AppState>((set, get) => ({
 
         set({ activePrescriptions: [...activePrescriptions, newP] });
         get().showToast(`${drug.name} ajouté`, "success");
+    },
+
+    addDosingRuleV2ToPrescription: (evaluation, v2Input, options) => {
+        const { activePrescriptions, activeWeightKg, activeAgeYears } = get();
+        if (!activeWeightKg) return; // Need weight
+        if (evaluation.status !== 'calculated' || !evaluation.ruleId) return;
+
+        if (activePrescriptions.some(p => p.drugId === evaluation.ruleId)) {
+            get().showToast(`${evaluation.drugName} est déjà dans l'ordonnance`, "error");
+            return;
+        }
+
+        let record: ReturnType<typeof mapDosingRuleToPrescription>;
+        try {
+            record = mapDosingRuleToPrescription({
+                evaluation,
+                patientWeightKg: activeWeightKg,
+                patientAgeYears: activeAgeYears || 0,
+                patientId: options?.patientId,
+            });
+        } catch (e) {
+            get().showToast(e instanceof DosingRuleV2MappingError ? e.message : "Erreur de calcul inattendue.", "error");
+            return;
+        }
+
+        const newP: Prescription & { drug?: Drug; v2Input?: DosingRuleEvaluationInput } = {
+            ...record,
+            date: new Date().toISOString(),
+            v2Input,
+        };
+
+        set({ activePrescriptions: [...activePrescriptions, newP] });
+        get().showToast(`${evaluation.drugName} ajouté`, "success");
     },
 
     removeDrugFromPrescription: (drugId) => {

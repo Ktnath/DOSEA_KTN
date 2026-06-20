@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppStore } from '@/store/useAppStore';
 import { Drug } from '@/types';
-import { Star, AlertTriangle, AlertOctagon, Info, PlayCircle, Plus } from 'lucide-react';
+import { Star, AlertTriangle, AlertOctagon, Info, PlayCircle, Plus, ShieldCheck } from 'lucide-react';
 import { ProtocolSelector } from '@/components/ProtocolSelector';
 import { PrescriptionCart } from '@/components/PrescriptionCart';
 import { VoiceAssistant } from '@/components/VoiceAssistant';
@@ -11,6 +11,8 @@ import {
     DosingError,
     PrescriptionCalculationResult,
 } from '@/domain/dosing';
+import { ALL_DOSING_RULES_V2 } from '@/domain/dosingRulesV2';
+import { calculatePrescriptionV2 } from '@/domain/doseCalculatorV2';
 
 const DAYS_PER_YEAR = 365.25;
 
@@ -159,6 +161,248 @@ const PrescriptionPreview: React.FC<{ drug: Drug; result: PrescriptionCalculatio
     );
 };
 
+const DOSING_RULES_V2_SORTED = [...ALL_DOSING_RULES_V2].sort((a, b) => a.drugName.localeCompare(b.drugName));
+
+const MISSING_FIELD_LABELS_V2: Record<string, string> = {
+    weightKg: 'Poids (kg)',
+    ageDays: 'Âge (jours)',
+    gestationalAgeWeeks: 'Âge gestationnel (sem)',
+    postMenstrualAgeWeeks: 'Âge postmenstruel (sem)',
+    route: "Voie d'administration",
+    indication: 'Indication',
+};
+
+interface DosingRuleV2PanelProps {
+    activeWeightKg: number | null;
+    activeAgeYears: number | null;
+    ageDays?: number;
+    patientId: string;
+    checkAndIncrementCount: () => boolean;
+    onLimitReached: () => void;
+}
+
+const DosingRuleV2Panel: React.FC<DosingRuleV2PanelProps> = ({
+    activeWeightKg,
+    activeAgeYears,
+    ageDays,
+    patientId,
+    checkAndIncrementCount,
+    onLimitReached,
+}) => {
+    const addDosingRuleV2ToPrescription = useAppStore((s) => s.addDosingRuleV2ToPrescription);
+    const [ruleId, setRuleId] = useState('');
+    const [route, setRoute] = useState('');
+    const [indication, setIndication] = useState('');
+    const [gestationalAgeWeeks, setGestationalAgeWeeks] = useState('');
+    const [postMenstrualAgeWeeks, setPostMenstrualAgeWeeks] = useState('');
+
+    const rule = useMemo(() => DOSING_RULES_V2_SORTED.find((r) => r.id === ruleId), [ruleId]);
+
+    const v2Input = useMemo(() => {
+        if (!rule) return null;
+        return {
+            drugName: rule.drugName,
+            weightKg: activeWeightKg ?? undefined,
+            ageDays,
+            gestationalAgeWeeks: gestationalAgeWeeks ? parseFloat(gestationalAgeWeeks) : undefined,
+            postMenstrualAgeWeeks: postMenstrualAgeWeeks ? parseFloat(postMenstrualAgeWeeks) : undefined,
+            route: route || undefined,
+            indication: indication || undefined,
+        };
+    }, [rule, activeWeightKg, ageDays, gestationalAgeWeeks, postMenstrualAgeWeeks, route, indication]);
+
+    const v2Result = useMemo(() => {
+        if (!v2Input) return null;
+        return calculatePrescriptionV2({
+            ...v2Input,
+            patientId: patientId.trim() || undefined,
+            patientAgeYears: activeAgeYears || 0,
+        });
+    }, [v2Input, patientId, activeAgeYears]);
+
+    const canAdd = !!v2Result?.prescriptionRecord && !v2Result.prescriptionError;
+
+    const handleAdd = () => {
+        if (!v2Input || !canAdd || !v2Result) return;
+        const isAllowed = checkAndIncrementCount();
+        if (!isAllowed) {
+            onLimitReached();
+            return;
+        }
+        addDosingRuleV2ToPrescription(v2Result.evaluation, v2Input, { patientId: patientId.trim() || undefined });
+        setRuleId('');
+        setRoute('');
+        setIndication('');
+        setGestationalAgeWeeks('');
+        setPostMenstrualAgeWeeks('');
+    };
+
+    return (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-700">
+            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-1 border-b pb-2 dark:border-gray-700 flex items-center gap-2">
+                <ShieldCheck size={18} className="text-secondary-dark" />
+                Base validée V2 (Dr KAPTO)
+            </h3>
+            <div className="mt-4">
+                <label htmlFor="drugV2" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Rechercher Médicament (base validée)
+                </label>
+                <select
+                    id="drugV2"
+                    value={ruleId}
+                    onChange={(e) => setRuleId(e.target.value)}
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+                >
+                    <option value="">-- Choisir --</option>
+                    {DOSING_RULES_V2_SORTED.map((r) => (
+                        <option key={r.id} value={r.id}>
+                            {r.drugName}{r.therapeuticClass ? ` (${r.therapeuticClass})` : ''}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            {rule && (
+                <div className="mt-4 space-y-3">
+                    <div className="grid grid-cols-2 gap-4">
+                        {rule.route && rule.route.length > 0 && (
+                            <div>
+                                <label htmlFor="v2Route" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Voie</label>
+                                <select
+                                    id="v2Route"
+                                    value={route}
+                                    onChange={(e) => setRoute(e.target.value)}
+                                    className="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-sm"
+                                >
+                                    <option value="">-- Choisir --</option>
+                                    {rule.route.map((r) => (
+                                        <option key={r} value={r}>{r}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                        {rule.indications && rule.indications.length > 0 && (
+                            <div>
+                                <label htmlFor="v2Indication" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Indication</label>
+                                <select
+                                    id="v2Indication"
+                                    value={indication}
+                                    onChange={(e) => setIndication(e.target.value)}
+                                    className="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-sm"
+                                >
+                                    <option value="">-- Choisir --</option>
+                                    {rule.indications.map((i) => (
+                                        <option key={i} value={i}>{i}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                        <div>
+                            <label htmlFor="v2Gest" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Âge gestationnel (sem)</label>
+                            <input
+                                type="number"
+                                id="v2Gest"
+                                value={gestationalAgeWeeks}
+                                onChange={(e) => setGestationalAgeWeeks(e.target.value)}
+                                className="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-sm"
+                                placeholder="ex: 32"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="v2Pma" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Âge postmenstruel (sem)</label>
+                            <input
+                                type="number"
+                                id="v2Pma"
+                                value={postMenstrualAgeWeeks}
+                                onChange={(e) => setPostMenstrualAgeWeeks(e.target.value)}
+                                className="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-sm"
+                                placeholder="ex: 40"
+                            />
+                        </div>
+                    </div>
+
+                    {v2Result && (
+                        <div className="mt-2 space-y-2">
+                            {v2Result.evaluation.status === 'requires_clinical_choice' && (
+                                <div className="flex items-start gap-2 p-3 rounded-md border text-sm bg-yellow-100 text-yellow-900 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-200 dark:border-yellow-700">
+                                    <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />
+                                    <span>
+                                        Règle conditionnelle nécessitant validation clinique / choix d'indication
+                                        {v2Result.evaluation.missingFields && v2Result.evaluation.missingFields.length > 0 && (
+                                            <> : {v2Result.evaluation.missingFields.map((f) => MISSING_FIELD_LABELS_V2[f] ?? f).join(', ')}</>
+                                        )}
+                                        .
+                                    </span>
+                                </div>
+                            )}
+
+                            {(v2Result.evaluation.status === 'blocked' || v2Result.prescriptionError) && (
+                                <div role="alert" className="flex items-start gap-3 p-4 rounded-lg border-2 bg-red-700 text-white border-red-900 shadow-lg">
+                                    <AlertOctagon size={28} className="flex-shrink-0" />
+                                    <div>
+                                        <p className="text-xs font-extrabold uppercase tracking-wide">Calcul bloqué</p>
+                                        <p className="font-bold text-sm leading-snug mt-0.5">
+                                            {v2Result.prescriptionError ?? "Règle conditionnelle nécessitant validation clinique / choix d'indication."}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {v2Result.evaluation.status === 'calculated' && (
+                                <div className="bg-gray-50 dark:bg-gray-700/40 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                                    <span className="text-2xl font-extrabold text-primary-dark dark:text-primary-light">
+                                        {v2Result.evaluation.doseText}
+                                    </span>
+                                    {v2Result.evaluation.frequencyText && (
+                                        <p className="text-gray-700 dark:text-gray-300 font-medium mt-1">{v2Result.evaluation.frequencyText}</p>
+                                    )}
+                                    {v2Result.evaluation.maxDoseText && (
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{v2Result.evaluation.maxDoseText}</p>
+                                    )}
+                                </div>
+                            )}
+
+                            {v2Result.evaluation.warnings.length > 0 && (
+                                <div className="space-y-2">
+                                    {v2Result.evaluation.warnings.map((w, i) => (
+                                        <div key={i} className="flex items-start gap-2 p-3 rounded-md border text-sm bg-yellow-100 text-yellow-900 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-200 dark:border-yellow-700">
+                                            <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />
+                                            <span>{w.warningText}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <details className="text-xs text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-gray-800/50 rounded-md p-3 border border-gray-100 dark:border-gray-700">
+                                <summary className="cursor-pointer font-semibold text-gray-600 dark:text-gray-300">
+                                    Texte validé (source) et explication
+                                </summary>
+                                <p className="mt-2 font-mono">{rule.validatedDoseText}</p>
+                                <p className="mt-1">{v2Result.evaluation.explanation}</p>
+                                {rule.sourceName && (
+                                    <p className="mt-2 italic">
+                                        <span className="font-semibold">Source : </span>
+                                        {rule.sourceName}
+                                    </p>
+                                )}
+                            </details>
+                        </div>
+                    )}
+
+                    <button
+                        type="button"
+                        onClick={handleAdd}
+                        disabled={!canAdd}
+                        className="w-full mt-2 flex justify-center items-center gap-2 bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <Plus size={20} /> Ajouter à l'ordonnance
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+
 const Calculator: React.FC = () => {
     const {
         drugs,
@@ -178,7 +422,7 @@ const Calculator: React.FC = () => {
     const [selectedDrugId, setSelectedDrugId] = useState<string>('');
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [isWatchingAd, setIsWatchingAd] = useState(false);
-    const [activeTab, setActiveTab] = useState<'manual' | 'protocol'>('manual');
+    const [activeTab, setActiveTab] = useState<'manual' | 'protocol' | 'v2'>('manual');
 
     const selectedDrug = useMemo(() => {
         return drugs.find(d => d.id === parseInt(selectedDrugId));
@@ -334,9 +578,26 @@ const Calculator: React.FC = () => {
                         >
                             Protocoles Cliniques
                         </button>
+                        <button
+                            onClick={() => setActiveTab('v2')}
+                            className={`flex-1 py-2 px-4 text-sm font-bold rounded-md transition-colors ${activeTab === 'v2' ? 'bg-white dark:bg-gray-600 shadow-sm text-primary dark:text-primary-light' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
+                        >
+                            Base validée V2
+                        </button>
                     </div>
 
                     {activeTab === 'protocol' && <ProtocolSelector />}
+
+                    {activeTab === 'v2' && (
+                        <DosingRuleV2Panel
+                            activeWeightKg={activeWeightKg}
+                            activeAgeYears={activeAgeYears}
+                            ageDays={ageDays}
+                            patientId={patientId}
+                            checkAndIncrementCount={checkAndIncrementCount}
+                            onLimitReached={() => setShowLimitModal(true)}
+                        />
+                    )}
 
                     {activeTab === 'manual' && (
                         <form onSubmit={handleAddDrug} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-700">

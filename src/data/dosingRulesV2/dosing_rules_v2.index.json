@@ -1,0 +1,659 @@
+{
+  "schema_version": "DOSEA_DOSING_RULES_V2_REVIEW_VALIDATED_2026_06_20",
+  "records_count": 80,
+  "by_clinical_system": {
+    "Antalgie / Antipyrétique": [
+      "dosea_v2_001_paracetamol",
+      "dosea_v2_002_ibuprofene"
+    ],
+    "Infectiologie": [
+      "dosea_v2_003_amoxicilline",
+      "dosea_v2_005_ampicilline",
+      "dosea_v2_006_gentamicine",
+      "dosea_v2_007_cefotaxime",
+      "dosea_v2_008_ceftriaxone",
+      "dosea_v2_009_ceftazidime",
+      "dosea_v2_010_cefazoline",
+      "dosea_v2_011_cloxacilline",
+      "dosea_v2_012_vancomycine",
+      "dosea_v2_013_metronidazole",
+      "dosea_v2_014_meropenem",
+      "dosea_v2_015_piperacilline_tazobactam",
+      "dosea_v2_016_linezolide",
+      "dosea_v2_017_rifampicine",
+      "dosea_v2_018_cotrimoxazole_tmp_smx",
+      "dosea_v2_019_cefuroxime",
+      "dosea_v2_020_cefoxitine",
+      "dosea_v2_021_fluconazole",
+      "dosea_v2_022_amphotericine_b_fungizone",
+      "dosea_v2_023_amphotericine_b_liposomale_ambisome",
+      "dosea_v2_024_acyclovir",
+      "dosea_v2_048_artemether_lumefantrine_act",
+      "dosea_v2_049_artesunate",
+      "dosea_v2_050_quinine",
+      "dosea_v2_073_nystatine"
+    ],
+    "Respiratoire": [
+      "dosea_v2_004_salbutamol_nebulisation",
+      "dosea_v2_061_cafeine_citrate",
+      "dosea_v2_067_acetylcysteine_nac"
+    ],
+    "Neurologie / Sédation": [
+      "dosea_v2_025_morphine",
+      "dosea_v2_026_fentanyl",
+      "dosea_v2_027_midazolam",
+      "dosea_v2_028_ketamine",
+      "dosea_v2_029_diazepam",
+      "dosea_v2_030_lorazepam",
+      "dosea_v2_031_phenobarbital",
+      "dosea_v2_032_phenytoine",
+      "dosea_v2_033_levetiracetam",
+      "dosea_v2_034_topiramate",
+      "dosea_v2_057_naloxone"
+    ],
+    "Cardiovasculaire": [
+      "dosea_v2_035_adrenaline_epinephrine",
+      "dosea_v2_037_furosemide",
+      "dosea_v2_038_spironolactone",
+      "dosea_v2_039_hydrochlorothiazide",
+      "dosea_v2_040_captopril",
+      "dosea_v2_041_propranolol",
+      "dosea_v2_042_nifedipine",
+      "dosea_v2_043_amlodipine",
+      "dosea_v2_044_hydralazine",
+      "dosea_v2_068_adenosine",
+      "dosea_v2_071_sotalol",
+      "dosea_v2_072_digoxine"
+    ],
+    "Autre": [
+      "dosea_v2_036_atropine",
+      "dosea_v2_069_sildenafil",
+      "dosea_v2_079_clonidine",
+      "dosea_v2_080_acetazolamide"
+    ],
+    "Endocrinologie": [
+      "dosea_v2_045_dexamethasone",
+      "dosea_v2_046_hydrocortisone",
+      "dosea_v2_047_prednisolone",
+      "dosea_v2_076_diazoxide",
+      "dosea_v2_077_glucagon"
+    ],
+    "Gastro-entérologie": [
+      "dosea_v2_051_ondansetron",
+      "dosea_v2_052_omeprazole",
+      "dosea_v2_053_ranitidine",
+      "dosea_v2_054_lansoprazole",
+      "dosea_v2_055_metoclopramide",
+      "dosea_v2_056_domperidone",
+      "dosea_v2_074_ursodiol_acide_ursodeoxycholique",
+      "dosea_v2_075_oxybutynine",
+      "dosea_v2_078_pantoprazole"
+    ],
+    "Toxicologie / Antidote": [
+      "dosea_v2_058_flumazenil",
+      "dosea_v2_070_bosentan"
+    ],
+    "Métabolisme / Nutrition": [
+      "dosea_v2_059_vitamine_k_phytonadione",
+      "dosea_v2_060_fer_sulfate_ferreux",
+      "dosea_v2_064_gluconate_de_calcium_10",
+      "dosea_v2_065_albumine_humaine"
+    ],
+    "Sédation / Anesthésie": [
+      "dosea_v2_062_succinylcholine",
+      "dosea_v2_063_rocuronium"
+    ],
+    "Hématologie": [
+      "dosea_v2_066_enoxaparine"
+    ]
+  },
+  "by_class": {
+    "Antalgique / Antipyrétique": [
+      "dosea_v2_001_paracetamol"
+    ],
+    "AINS": [
+      "dosea_v2_002_ibuprofene"
+    ],
+    "Antibiotique": [
+      "dosea_v2_003_amoxicilline",
+      "dosea_v2_005_ampicilline",
+      "dosea_v2_006_gentamicine",
+      "dosea_v2_007_cefotaxime",
+      "dosea_v2_008_ceftriaxone",
+      "dosea_v2_009_ceftazidime",
+      "dosea_v2_010_cefazoline",
+      "dosea_v2_011_cloxacilline",
+      "dosea_v2_012_vancomycine",
+      "dosea_v2_013_metronidazole",
+      "dosea_v2_014_meropenem",
+      "dosea_v2_015_piperacilline_tazobactam",
+      "dosea_v2_016_linezolide",
+      "dosea_v2_017_rifampicine",
+      "dosea_v2_018_cotrimoxazole_tmp_smx",
+      "dosea_v2_019_cefuroxime",
+      "dosea_v2_020_cefoxitine"
+    ],
+    "Bronchodilatateur": [
+      "dosea_v2_004_salbutamol_nebulisation"
+    ],
+    "Antifongique": [
+      "dosea_v2_021_fluconazole",
+      "dosea_v2_022_amphotericine_b_fungizone",
+      "dosea_v2_023_amphotericine_b_liposomale_ambisome",
+      "dosea_v2_073_nystatine"
+    ],
+    "Antiviral": [
+      "dosea_v2_024_acyclovir"
+    ],
+    "Analgésique opioïde": [
+      "dosea_v2_025_morphine",
+      "dosea_v2_026_fentanyl"
+    ],
+    "Sédatif": [
+      "dosea_v2_027_midazolam"
+    ],
+    "Anesthésique dissociatif": [
+      "dosea_v2_028_ketamine"
+    ],
+    "Antiépileptique / Sédatif": [
+      "dosea_v2_029_diazepam",
+      "dosea_v2_030_lorazepam"
+    ],
+    "Antiépileptique": [
+      "dosea_v2_031_phenobarbital",
+      "dosea_v2_032_phenytoine",
+      "dosea_v2_033_levetiracetam",
+      "dosea_v2_034_topiramate"
+    ],
+    "Catécholamine / Vasopresseur": [
+      "dosea_v2_035_adrenaline_epinephrine"
+    ],
+    "Anticholinergique": [
+      "dosea_v2_036_atropine"
+    ],
+    "Diurétique de l'anse": [
+      "dosea_v2_037_furosemide"
+    ],
+    "Diurétique épargneur de potassium": [
+      "dosea_v2_038_spironolactone"
+    ],
+    "Diurétique thiazidique": [
+      "dosea_v2_039_hydrochlorothiazide"
+    ],
+    "Antihypertenseur": [
+      "dosea_v2_040_captopril",
+      "dosea_v2_042_nifedipine",
+      "dosea_v2_043_amlodipine",
+      "dosea_v2_044_hydralazine"
+    ],
+    "Bêta-bloquant": [
+      "dosea_v2_041_propranolol"
+    ],
+    "Corticoïde": [
+      "dosea_v2_045_dexamethasone",
+      "dosea_v2_046_hydrocortisone",
+      "dosea_v2_047_prednisolone"
+    ],
+    "Antipaludéen": [
+      "dosea_v2_048_artemether_lumefantrine_act",
+      "dosea_v2_049_artesunate",
+      "dosea_v2_050_quinine"
+    ],
+    "Antiémétique": [
+      "dosea_v2_051_ondansetron"
+    ],
+    "Inhibiteur de la pompe à protons": [
+      "dosea_v2_052_omeprazole",
+      "dosea_v2_054_lansoprazole",
+      "dosea_v2_078_pantoprazole"
+    ],
+    "Anti-H2": [
+      "dosea_v2_053_ranitidine"
+    ],
+    "Prokinétique / Antiémétique": [
+      "dosea_v2_055_metoclopramide"
+    ],
+    "Prokinétique": [
+      "dosea_v2_056_domperidone"
+    ],
+    "Antagoniste opioïde": [
+      "dosea_v2_057_naloxone"
+    ],
+    "Antagoniste benzodiazépine": [
+      "dosea_v2_058_flumazenil"
+    ],
+    "Vitamine": [
+      "dosea_v2_059_vitamine_k_phytonadione"
+    ],
+    "Supplément": [
+      "dosea_v2_060_fer_sulfate_ferreux"
+    ],
+    "Méthylxanthine": [
+      "dosea_v2_061_cafeine_citrate"
+    ],
+    "Curare dépolarisant": [
+      "dosea_v2_062_succinylcholine"
+    ],
+    "Curare non dépolarisant": [
+      "dosea_v2_063_rocuronium"
+    ],
+    "Électrolyte": [
+      "dosea_v2_064_gluconate_de_calcium_10"
+    ],
+    "Soluté de remplissage": [
+      "dosea_v2_065_albumine_humaine"
+    ],
+    "Anticoagulant": [
+      "dosea_v2_066_enoxaparine"
+    ],
+    "Mucolytique / Antidote": [
+      "dosea_v2_067_acetylcysteine_nac"
+    ],
+    "Antiarythmique": [
+      "dosea_v2_068_adenosine"
+    ],
+    "Inhibiteur PDE5": [
+      "dosea_v2_069_sildenafil"
+    ],
+    "Antagoniste des récepteurs de l'endothéline": [
+      "dosea_v2_070_bosentan"
+    ],
+    "Antiarythmique / Bêta-bloquant": [
+      "dosea_v2_071_sotalol"
+    ],
+    "Inotrope / Antiarythmique": [
+      "dosea_v2_072_digoxine"
+    ],
+    "Hépatoprotecteur": [
+      "dosea_v2_074_ursodiol_acide_ursodeoxycholique"
+    ],
+    "Antispasmodique urinaire": [
+      "dosea_v2_075_oxybutynine"
+    ],
+    "Antihypoglycémiant": [
+      "dosea_v2_076_diazoxide"
+    ],
+    "Hormone hyperglycémiante": [
+      "dosea_v2_077_glucagon"
+    ],
+    "Alpha-2 agoniste": [
+      "dosea_v2_079_clonidine"
+    ],
+    "Inhibiteur de l'anhydrase carbonique": [
+      "dosea_v2_080_acetazolamide"
+    ]
+  },
+  "by_rule_type": {
+    "conditional_or_algorithmic": [
+      "dosea_v2_001_paracetamol",
+      "dosea_v2_002_ibuprofene",
+      "dosea_v2_003_amoxicilline",
+      "dosea_v2_004_salbutamol_nebulisation",
+      "dosea_v2_005_ampicilline",
+      "dosea_v2_006_gentamicine",
+      "dosea_v2_007_cefotaxime",
+      "dosea_v2_008_ceftriaxone",
+      "dosea_v2_009_ceftazidime",
+      "dosea_v2_010_cefazoline",
+      "dosea_v2_012_vancomycine",
+      "dosea_v2_013_metronidazole",
+      "dosea_v2_015_piperacilline_tazobactam",
+      "dosea_v2_016_linezolide",
+      "dosea_v2_018_cotrimoxazole_tmp_smx",
+      "dosea_v2_019_cefuroxime",
+      "dosea_v2_020_cefoxitine",
+      "dosea_v2_021_fluconazole",
+      "dosea_v2_022_amphotericine_b_fungizone",
+      "dosea_v2_023_amphotericine_b_liposomale_ambisome",
+      "dosea_v2_024_acyclovir",
+      "dosea_v2_025_morphine",
+      "dosea_v2_026_fentanyl",
+      "dosea_v2_027_midazolam",
+      "dosea_v2_028_ketamine",
+      "dosea_v2_029_diazepam",
+      "dosea_v2_030_lorazepam",
+      "dosea_v2_031_phenobarbital",
+      "dosea_v2_032_phenytoine",
+      "dosea_v2_033_levetiracetam",
+      "dosea_v2_034_topiramate",
+      "dosea_v2_035_adrenaline_epinephrine",
+      "dosea_v2_037_furosemide",
+      "dosea_v2_040_captopril",
+      "dosea_v2_041_propranolol",
+      "dosea_v2_042_nifedipine",
+      "dosea_v2_044_hydralazine",
+      "dosea_v2_045_dexamethasone",
+      "dosea_v2_046_hydrocortisone",
+      "dosea_v2_047_prednisolone",
+      "dosea_v2_048_artemether_lumefantrine_act",
+      "dosea_v2_049_artesunate",
+      "dosea_v2_050_quinine",
+      "dosea_v2_051_ondansetron",
+      "dosea_v2_053_ranitidine",
+      "dosea_v2_054_lansoprazole",
+      "dosea_v2_055_metoclopramide",
+      "dosea_v2_057_naloxone",
+      "dosea_v2_058_flumazenil",
+      "dosea_v2_059_vitamine_k_phytonadione",
+      "dosea_v2_060_fer_sulfate_ferreux",
+      "dosea_v2_061_cafeine_citrate",
+      "dosea_v2_062_succinylcholine",
+      "dosea_v2_063_rocuronium",
+      "dosea_v2_064_gluconate_de_calcium_10",
+      "dosea_v2_066_enoxaparine",
+      "dosea_v2_068_adenosine",
+      "dosea_v2_069_sildenafil",
+      "dosea_v2_071_sotalol",
+      "dosea_v2_072_digoxine",
+      "dosea_v2_073_nystatine",
+      "dosea_v2_076_diazoxide",
+      "dosea_v2_077_glucagon",
+      "dosea_v2_078_pantoprazole",
+      "dosea_v2_079_clonidine",
+      "dosea_v2_080_acetazolamide"
+    ],
+    "semi_structured": [
+      "dosea_v2_011_cloxacilline",
+      "dosea_v2_014_meropenem",
+      "dosea_v2_036_atropine",
+      "dosea_v2_070_bosentan"
+    ],
+    "simple_or_semi_simple": [
+      "dosea_v2_017_rifampicine",
+      "dosea_v2_038_spironolactone",
+      "dosea_v2_039_hydrochlorothiazide",
+      "dosea_v2_043_amlodipine",
+      "dosea_v2_052_omeprazole",
+      "dosea_v2_056_domperidone",
+      "dosea_v2_065_albumine_humaine",
+      "dosea_v2_067_acetylcysteine_nac",
+      "dosea_v2_074_ursodiol_acide_ursodeoxycholique",
+      "dosea_v2_075_oxybutynine"
+    ]
+  },
+  "high_safety_flags": {
+    "maximum_dose_required": [
+      "dosea_v2_001_paracetamol",
+      "dosea_v2_002_ibuprofene",
+      "dosea_v2_003_amoxicilline",
+      "dosea_v2_004_salbutamol_nebulisation",
+      "dosea_v2_005_ampicilline",
+      "dosea_v2_006_gentamicine",
+      "dosea_v2_007_cefotaxime",
+      "dosea_v2_008_ceftriaxone",
+      "dosea_v2_009_ceftazidime",
+      "dosea_v2_010_cefazoline",
+      "dosea_v2_011_cloxacilline",
+      "dosea_v2_012_vancomycine",
+      "dosea_v2_013_metronidazole",
+      "dosea_v2_014_meropenem",
+      "dosea_v2_015_piperacilline_tazobactam",
+      "dosea_v2_016_linezolide",
+      "dosea_v2_017_rifampicine",
+      "dosea_v2_018_cotrimoxazole_tmp_smx",
+      "dosea_v2_019_cefuroxime",
+      "dosea_v2_020_cefoxitine",
+      "dosea_v2_021_fluconazole",
+      "dosea_v2_022_amphotericine_b_fungizone",
+      "dosea_v2_023_amphotericine_b_liposomale_ambisome",
+      "dosea_v2_024_acyclovir",
+      "dosea_v2_025_morphine",
+      "dosea_v2_026_fentanyl",
+      "dosea_v2_027_midazolam",
+      "dosea_v2_028_ketamine",
+      "dosea_v2_029_diazepam",
+      "dosea_v2_030_lorazepam",
+      "dosea_v2_031_phenobarbital",
+      "dosea_v2_032_phenytoine",
+      "dosea_v2_033_levetiracetam",
+      "dosea_v2_034_topiramate",
+      "dosea_v2_035_adrenaline_epinephrine",
+      "dosea_v2_036_atropine",
+      "dosea_v2_037_furosemide",
+      "dosea_v2_038_spironolactone",
+      "dosea_v2_039_hydrochlorothiazide",
+      "dosea_v2_040_captopril",
+      "dosea_v2_041_propranolol",
+      "dosea_v2_042_nifedipine",
+      "dosea_v2_043_amlodipine",
+      "dosea_v2_044_hydralazine",
+      "dosea_v2_045_dexamethasone",
+      "dosea_v2_046_hydrocortisone",
+      "dosea_v2_047_prednisolone",
+      "dosea_v2_048_artemether_lumefantrine_act",
+      "dosea_v2_049_artesunate",
+      "dosea_v2_050_quinine",
+      "dosea_v2_051_ondansetron",
+      "dosea_v2_052_omeprazole",
+      "dosea_v2_053_ranitidine",
+      "dosea_v2_054_lansoprazole",
+      "dosea_v2_055_metoclopramide",
+      "dosea_v2_056_domperidone",
+      "dosea_v2_057_naloxone",
+      "dosea_v2_058_flumazenil",
+      "dosea_v2_059_vitamine_k_phytonadione",
+      "dosea_v2_060_fer_sulfate_ferreux",
+      "dosea_v2_061_cafeine_citrate",
+      "dosea_v2_062_succinylcholine",
+      "dosea_v2_063_rocuronium",
+      "dosea_v2_064_gluconate_de_calcium_10",
+      "dosea_v2_065_albumine_humaine",
+      "dosea_v2_066_enoxaparine",
+      "dosea_v2_067_acetylcysteine_nac",
+      "dosea_v2_068_adenosine",
+      "dosea_v2_069_sildenafil",
+      "dosea_v2_070_bosentan",
+      "dosea_v2_071_sotalol",
+      "dosea_v2_072_digoxine",
+      "dosea_v2_073_nystatine",
+      "dosea_v2_074_ursodiol_acide_ursodeoxycholique",
+      "dosea_v2_075_oxybutynine",
+      "dosea_v2_076_diazoxide",
+      "dosea_v2_077_glucagon",
+      "dosea_v2_078_pantoprazole",
+      "dosea_v2_079_clonidine",
+      "dosea_v2_080_acetazolamide"
+    ],
+    "neonatal_or_prematurity_context": [
+      "dosea_v2_001_paracetamol",
+      "dosea_v2_002_ibuprofene",
+      "dosea_v2_003_amoxicilline",
+      "dosea_v2_005_ampicilline",
+      "dosea_v2_006_gentamicine",
+      "dosea_v2_007_cefotaxime",
+      "dosea_v2_008_ceftriaxone",
+      "dosea_v2_009_ceftazidime",
+      "dosea_v2_010_cefazoline",
+      "dosea_v2_012_vancomycine",
+      "dosea_v2_013_metronidazole",
+      "dosea_v2_015_piperacilline_tazobactam",
+      "dosea_v2_016_linezolide",
+      "dosea_v2_018_cotrimoxazole_tmp_smx",
+      "dosea_v2_019_cefuroxime",
+      "dosea_v2_020_cefoxitine",
+      "dosea_v2_021_fluconazole",
+      "dosea_v2_022_amphotericine_b_fungizone",
+      "dosea_v2_024_acyclovir",
+      "dosea_v2_025_morphine",
+      "dosea_v2_026_fentanyl",
+      "dosea_v2_028_ketamine",
+      "dosea_v2_031_phenobarbital",
+      "dosea_v2_033_levetiracetam",
+      "dosea_v2_034_topiramate",
+      "dosea_v2_040_captopril",
+      "dosea_v2_042_nifedipine",
+      "dosea_v2_044_hydralazine",
+      "dosea_v2_047_prednisolone",
+      "dosea_v2_048_artemether_lumefantrine_act",
+      "dosea_v2_049_artesunate",
+      "dosea_v2_051_ondansetron",
+      "dosea_v2_053_ranitidine",
+      "dosea_v2_054_lansoprazole",
+      "dosea_v2_057_naloxone",
+      "dosea_v2_059_vitamine_k_phytonadione",
+      "dosea_v2_060_fer_sulfate_ferreux",
+      "dosea_v2_061_cafeine_citrate",
+      "dosea_v2_062_succinylcholine",
+      "dosea_v2_066_enoxaparine",
+      "dosea_v2_069_sildenafil",
+      "dosea_v2_070_bosentan",
+      "dosea_v2_071_sotalol",
+      "dosea_v2_072_digoxine",
+      "dosea_v2_074_ursodiol_acide_ursodeoxycholique",
+      "dosea_v2_075_oxybutynine",
+      "dosea_v2_079_clonidine"
+    ],
+    "unit_sensitive": [
+      "dosea_v2_001_paracetamol",
+      "dosea_v2_002_ibuprofene",
+      "dosea_v2_003_amoxicilline",
+      "dosea_v2_004_salbutamol_nebulisation",
+      "dosea_v2_005_ampicilline",
+      "dosea_v2_006_gentamicine",
+      "dosea_v2_007_cefotaxime",
+      "dosea_v2_008_ceftriaxone",
+      "dosea_v2_009_ceftazidime",
+      "dosea_v2_010_cefazoline",
+      "dosea_v2_011_cloxacilline",
+      "dosea_v2_012_vancomycine",
+      "dosea_v2_013_metronidazole",
+      "dosea_v2_014_meropenem",
+      "dosea_v2_015_piperacilline_tazobactam",
+      "dosea_v2_016_linezolide",
+      "dosea_v2_017_rifampicine",
+      "dosea_v2_019_cefuroxime",
+      "dosea_v2_020_cefoxitine",
+      "dosea_v2_021_fluconazole",
+      "dosea_v2_022_amphotericine_b_fungizone",
+      "dosea_v2_023_amphotericine_b_liposomale_ambisome",
+      "dosea_v2_024_acyclovir",
+      "dosea_v2_025_morphine",
+      "dosea_v2_026_fentanyl",
+      "dosea_v2_027_midazolam",
+      "dosea_v2_028_ketamine",
+      "dosea_v2_029_diazepam",
+      "dosea_v2_030_lorazepam",
+      "dosea_v2_031_phenobarbital",
+      "dosea_v2_032_phenytoine",
+      "dosea_v2_033_levetiracetam",
+      "dosea_v2_035_adrenaline_epinephrine",
+      "dosea_v2_036_atropine",
+      "dosea_v2_037_furosemide",
+      "dosea_v2_040_captopril",
+      "dosea_v2_041_propranolol",
+      "dosea_v2_042_nifedipine",
+      "dosea_v2_043_amlodipine",
+      "dosea_v2_044_hydralazine",
+      "dosea_v2_045_dexamethasone",
+      "dosea_v2_046_hydrocortisone",
+      "dosea_v2_049_artesunate",
+      "dosea_v2_050_quinine",
+      "dosea_v2_051_ondansetron",
+      "dosea_v2_052_omeprazole",
+      "dosea_v2_053_ranitidine",
+      "dosea_v2_055_metoclopramide",
+      "dosea_v2_057_naloxone",
+      "dosea_v2_058_flumazenil",
+      "dosea_v2_059_vitamine_k_phytonadione",
+      "dosea_v2_061_cafeine_citrate",
+      "dosea_v2_062_succinylcholine",
+      "dosea_v2_063_rocuronium",
+      "dosea_v2_064_gluconate_de_calcium_10",
+      "dosea_v2_065_albumine_humaine",
+      "dosea_v2_066_enoxaparine",
+      "dosea_v2_067_acetylcysteine_nac",
+      "dosea_v2_068_adenosine",
+      "dosea_v2_069_sildenafil",
+      "dosea_v2_072_digoxine",
+      "dosea_v2_075_oxybutynine",
+      "dosea_v2_077_glucagon",
+      "dosea_v2_078_pantoprazole",
+      "dosea_v2_079_clonidine",
+      "dosea_v2_080_acetazolamide"
+    ],
+    "dilution_or_infusion_sensitive": [
+      "dosea_v2_005_ampicilline",
+      "dosea_v2_006_gentamicine",
+      "dosea_v2_007_cefotaxime",
+      "dosea_v2_008_ceftriaxone",
+      "dosea_v2_009_ceftazidime",
+      "dosea_v2_010_cefazoline",
+      "dosea_v2_011_cloxacilline",
+      "dosea_v2_012_vancomycine",
+      "dosea_v2_013_metronidazole",
+      "dosea_v2_014_meropenem",
+      "dosea_v2_015_piperacilline_tazobactam",
+      "dosea_v2_016_linezolide",
+      "dosea_v2_017_rifampicine",
+      "dosea_v2_019_cefuroxime",
+      "dosea_v2_020_cefoxitine",
+      "dosea_v2_021_fluconazole",
+      "dosea_v2_022_amphotericine_b_fungizone",
+      "dosea_v2_023_amphotericine_b_liposomale_ambisome",
+      "dosea_v2_024_acyclovir",
+      "dosea_v2_025_morphine",
+      "dosea_v2_026_fentanyl",
+      "dosea_v2_027_midazolam",
+      "dosea_v2_028_ketamine",
+      "dosea_v2_029_diazepam",
+      "dosea_v2_030_lorazepam",
+      "dosea_v2_031_phenobarbital",
+      "dosea_v2_032_phenytoine",
+      "dosea_v2_033_levetiracetam",
+      "dosea_v2_035_adrenaline_epinephrine",
+      "dosea_v2_036_atropine",
+      "dosea_v2_037_furosemide",
+      "dosea_v2_041_propranolol",
+      "dosea_v2_044_hydralazine",
+      "dosea_v2_045_dexamethasone",
+      "dosea_v2_046_hydrocortisone",
+      "dosea_v2_049_artesunate",
+      "dosea_v2_050_quinine",
+      "dosea_v2_051_ondansetron",
+      "dosea_v2_052_omeprazole",
+      "dosea_v2_053_ranitidine",
+      "dosea_v2_055_metoclopramide",
+      "dosea_v2_057_naloxone",
+      "dosea_v2_058_flumazenil",
+      "dosea_v2_059_vitamine_k_phytonadione",
+      "dosea_v2_061_cafeine_citrate",
+      "dosea_v2_062_succinylcholine",
+      "dosea_v2_063_rocuronium",
+      "dosea_v2_064_gluconate_de_calcium_10",
+      "dosea_v2_065_albumine_humaine",
+      "dosea_v2_067_acetylcysteine_nac",
+      "dosea_v2_068_adenosine",
+      "dosea_v2_069_sildenafil",
+      "dosea_v2_072_digoxine",
+      "dosea_v2_077_glucagon",
+      "dosea_v2_078_pantoprazole",
+      "dosea_v2_080_acetazolamide"
+    ],
+    "renal_or_level_monitoring": [
+      "dosea_v2_006_gentamicine",
+      "dosea_v2_012_vancomycine",
+      "dosea_v2_035_adrenaline_epinephrine",
+      "dosea_v2_046_hydrocortisone"
+    ],
+    "clinical_contraindication_or_interaction": [
+      "dosea_v2_008_ceftriaxone",
+      "dosea_v2_028_ketamine",
+      "dosea_v2_064_gluconate_de_calcium_10"
+    ],
+    "restricted_or_specialist_use": [
+      "dosea_v2_014_meropenem"
+    ],
+    "emergency_drug": [
+      "dosea_v2_027_midazolam",
+      "dosea_v2_028_ketamine",
+      "dosea_v2_029_diazepam",
+      "dosea_v2_030_lorazepam",
+      "dosea_v2_031_phenobarbital",
+      "dosea_v2_032_phenytoine",
+      "dosea_v2_033_levetiracetam",
+      "dosea_v2_035_adrenaline_epinephrine",
+      "dosea_v2_046_hydrocortisone",
+      "dosea_v2_064_gluconate_de_calcium_10"
+    ]
+  }
+}

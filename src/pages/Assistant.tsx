@@ -3,6 +3,8 @@ import { GoogleGenAI } from "@google/genai";
 import { Send, Bot, User, Loader2 } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
 import { buildAssistantSystemInstruction, detectDoseRequest } from '@/domain/assistant/assistantGuard';
+import { answerLocalDrugQuery, detectLocalDrugQuery } from '@/domain/assistant/localDrugQueries';
+import { AI_UNAVAILABLE_MESSAGE } from '@/domain/assistant/aiUnavailableMessage';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -41,6 +43,11 @@ const Assistant: React.FC = () => {
             return;
         }
 
+        if (detectLocalDrugQuery(userMsg)) {
+            setMessages(prev => [...prev, { role: 'assistant', content: answerLocalDrugQuery(userMsg) }]);
+            return;
+        }
+
         setIsLoading(true);
 
         try {
@@ -58,7 +65,10 @@ const Assistant: React.FC = () => {
             const aiText = response.text || "Désolé, je n'ai pas pu générer de réponse.";
             setMessages(prev => [...prev, { role: 'assistant', content: aiText }]);
         } catch (error) {
-            setMessages(prev => [...prev, { role: 'assistant', content: "Erreur de connexion avec l'IA. Vérifiez votre connexion et votre clé API dans .env.local." }]);
+            if (import.meta.env.DEV) {
+                console.error(error);
+            }
+            setMessages(prev => [...prev, { role: 'assistant', content: AI_UNAVAILABLE_MESSAGE }]);
         } finally {
             setIsLoading(false);
         }

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppStore } from '@/store/useAppStore';
 import { Drug } from '@/types';
@@ -11,7 +11,7 @@ import {
     DosingError,
     PrescriptionCalculationResult,
 } from '@/domain/dosing';
-import { ALL_DOSING_RULES_V2 } from '@/domain/dosingRulesV2';
+import { ALL_DOSING_RULES_V2, getRequiredFieldsForRule } from '@/domain/dosingRulesV2';
 import { calculatePrescriptionV2 } from '@/domain/doseCalculatorV2';
 
 const DAYS_PER_YEAR = 365.25;
@@ -172,6 +172,20 @@ const MISSING_FIELD_LABELS_V2: Record<string, string> = {
     indication: 'Indication',
 };
 
+/**
+ * Messages spécifiques par règle pour le statut `requires_clinical_choice`,
+ * plus précis que la liste générique de champs manquants (cf. CLAUDE.md :
+ * toute dose affichée doit pouvoir expliquer pourquoi un choix clinique est
+ * nécessaire). Couvre les règles où l'ambiguïté a une cause clinique connue
+ * et nommée ; les autres règles retombent sur le message générique basé sur
+ * `missingFields`.
+ */
+const RULE_SPECIFIC_CLINICAL_CHOICE_MESSAGES: Record<string, string> = {
+    dosea_v2_049_artesunate: 'Poids requis : <20 kg = 3 mg/kg/dose ; ≥20 kg = 2,4 mg/kg/dose.',
+    dosea_v2_006_gentamicine: "Âge postmenstruel ou âge néonatal requis pour choisir l'intervalle validé.",
+    dosea_v2_008_ceftriaxone: 'Âge requis pour vérifier la contre-indication néonatale avec le calcium IV.',
+};
+
 interface DosingRuleV2PanelProps {
     activeWeightKg: number | null;
     activeAgeYears: number | null;
@@ -197,6 +211,22 @@ const DosingRuleV2Panel: React.FC<DosingRuleV2PanelProps> = ({
     const [postMenstrualAgeWeeks, setPostMenstrualAgeWeeks] = useState('');
 
     const rule = useMemo(() => DOSING_RULES_V2_SORTED.find((r) => r.id === ruleId), [ruleId]);
+    const requiredFields = useMemo(() => (rule ? getRequiredFieldsForRule(rule) : []), [rule]);
+    const needsRoute = requiredFields.includes('route');
+    const needsIndication = requiredFields.includes('indication');
+    const needsGestationalAge = requiredFields.includes('gestationalAgeWeeks');
+    const needsPostMenstrualAge = requiredFields.includes('postMenstrualAgeWeeks');
+    const needsRenalFunction = requiredFields.includes('renalFunction');
+    const needsCalciumCoAdministration = requiredFields.includes('calciumCoAdministration');
+
+    // Réinitialise les champs propres à une règle quand on change de médicament,
+    // pour ne jamais réutiliser par erreur une valeur saisie pour une autre règle.
+    useEffect(() => {
+        setRoute('');
+        setIndication('');
+        setGestationalAgeWeeks('');
+        setPostMenstrualAgeWeeks('');
+    }, [ruleId]);
 
     const v2Input = useMemo(() => {
         if (!rule) return null;
@@ -264,8 +294,13 @@ const DosingRuleV2Panel: React.FC<DosingRuleV2PanelProps> = ({
 
             {rule && (
                 <div className="mt-4 space-y-3">
+                    {requiredFields.length === 0 && (
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Aucune information complémentaire requise pour cette règle au-delà du poids/âge du patient déjà saisis.
+                        </p>
+                    )}
                     <div className="grid grid-cols-2 gap-4">
-                        {rule.route && rule.route.length > 0 && (
+                        {needsRoute && rule.route && rule.route.length > 0 && (
                             <div>
                                 <label htmlFor="v2Route" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Voie</label>
                                 <select
@@ -281,7 +316,7 @@ const DosingRuleV2Panel: React.FC<DosingRuleV2PanelProps> = ({
                                 </select>
                             </div>
                         )}
-                        {rule.indications && rule.indications.length > 0 && (
+                        {needsIndication && rule.indications && rule.indications.length > 0 && (
                             <div>
                                 <label htmlFor="v2Indication" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Indication</label>
                                 <select
@@ -297,29 +332,44 @@ const DosingRuleV2Panel: React.FC<DosingRuleV2PanelProps> = ({
                                 </select>
                             </div>
                         )}
-                        <div>
-                            <label htmlFor="v2Gest" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Âge gestationnel (sem)</label>
-                            <input
-                                type="number"
-                                id="v2Gest"
-                                value={gestationalAgeWeeks}
-                                onChange={(e) => setGestationalAgeWeeks(e.target.value)}
-                                className="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-sm"
-                                placeholder="ex: 32"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="v2Pma" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Âge postmenstruel (sem)</label>
-                            <input
-                                type="number"
-                                id="v2Pma"
-                                value={postMenstrualAgeWeeks}
-                                onChange={(e) => setPostMenstrualAgeWeeks(e.target.value)}
-                                className="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-sm"
-                                placeholder="ex: 40"
-                            />
-                        </div>
+                        {needsGestationalAge && (
+                            <div>
+                                <label htmlFor="v2Gest" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Âge gestationnel (sem)</label>
+                                <input
+                                    type="number"
+                                    id="v2Gest"
+                                    value={gestationalAgeWeeks}
+                                    onChange={(e) => setGestationalAgeWeeks(e.target.value)}
+                                    className="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-sm"
+                                    placeholder="ex: 32"
+                                />
+                            </div>
+                        )}
+                        {needsPostMenstrualAge && (
+                            <div>
+                                <label htmlFor="v2Pma" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Âge postmenstruel (sem)</label>
+                                <input
+                                    type="number"
+                                    id="v2Pma"
+                                    value={postMenstrualAgeWeeks}
+                                    onChange={(e) => setPostMenstrualAgeWeeks(e.target.value)}
+                                    className="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-sm"
+                                    placeholder="ex: 40"
+                                />
+                            </div>
+                        )}
                     </div>
+
+                    {(needsRenalFunction || needsCalciumCoAdministration) && (
+                        <div className="flex items-start gap-2 p-3 rounded-md border text-sm bg-orange-50 text-orange-900 border-orange-300 dark:bg-orange-900/20 dark:text-orange-200 dark:border-orange-700">
+                            <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />
+                            <span>
+                                {needsRenalFunction && 'Vérifier la fonction rénale (clairance/créatinine) avant administration.'}
+                                {needsRenalFunction && needsCalciumCoAdministration && ' '}
+                                {needsCalciumCoAdministration && 'Vérifier toute co-administration de calcium IV (contre-indication chez le nouveau-né).'}
+                            </span>
+                        </div>
+                    )}
 
                     {v2Result && (
                         <div className="mt-2 space-y-2">
@@ -327,11 +377,15 @@ const DosingRuleV2Panel: React.FC<DosingRuleV2PanelProps> = ({
                                 <div className="flex items-start gap-2 p-3 rounded-md border text-sm bg-yellow-100 text-yellow-900 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-200 dark:border-yellow-700">
                                     <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />
                                     <span>
-                                        Règle conditionnelle nécessitant validation clinique / choix d'indication
-                                        {v2Result.evaluation.missingFields && v2Result.evaluation.missingFields.length > 0 && (
-                                            <> : {v2Result.evaluation.missingFields.map((f) => MISSING_FIELD_LABELS_V2[f] ?? f).join(', ')}</>
+                                        {RULE_SPECIFIC_CLINICAL_CHOICE_MESSAGES[rule.id] ?? (
+                                            <>
+                                                Précision requise pour calculer la dose
+                                                {v2Result.evaluation.missingFields && v2Result.evaluation.missingFields.length > 0 && (
+                                                    <> : {v2Result.evaluation.missingFields.map((f) => MISSING_FIELD_LABELS_V2[f] ?? f).join(', ')}</>
+                                                )}
+                                                .
+                                            </>
                                         )}
-                                        .
                                     </span>
                                 </div>
                             )}
@@ -342,7 +396,7 @@ const DosingRuleV2Panel: React.FC<DosingRuleV2PanelProps> = ({
                                     <div>
                                         <p className="text-xs font-extrabold uppercase tracking-wide">Calcul bloqué</p>
                                         <p className="font-bold text-sm leading-snug mt-0.5">
-                                            {v2Result.prescriptionError ?? "Règle conditionnelle nécessitant validation clinique / choix d'indication."}
+                                            {v2Result.prescriptionError ?? 'La règle validée ne permet pas de déduire une dose unique à partir des informations actuelles : voir le texte validé ci-dessous.'}
                                         </p>
                                     </div>
                                 </div>

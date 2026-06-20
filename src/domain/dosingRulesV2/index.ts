@@ -18,6 +18,9 @@ export { evaluateDosingRule } from './evaluateDosingRule';
 export { explainDosingRule } from './explainDosingRule';
 export type { ExplainDosingRuleInput } from './explainDosingRule';
 
+export { getRequiredFieldsForRule } from './requiredFields';
+export type { RequiredClinicalField } from './requiredFields';
+
 export type {
   ClinicalWarningV2,
   DoseAmount,

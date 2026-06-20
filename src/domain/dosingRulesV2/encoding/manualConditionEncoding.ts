@@ -1063,11 +1063,18 @@ export const manualConditionEncoding: Record<string, DosingRuleConditionEncoding
   ),
 
   // 049 — Artésunate
+  // Tranches de poids (<20 kg = 3 mg/kg ; ≥20 kg = 2,4 mg/kg) ajoutées le 2026-06-20,
+  // source OMS (WHO Guidelines for the treatment of malaria), validées par Dr KAPTO.
   dosea_v2_049_artesunate: rule(
     'dosea_v2_049_artesunate',
     [
-      branch('iv-im', amt('mg_per_kg', 2.4, 2.4), {
-        condition: { routes: ['IV', 'IM'] },
+      branch('iv-im-lt20kg', amt('mg_per_kg', 3, 3), {
+        condition: { routes: ['IV', 'IM'], weightMaxKg: 20 },
+        schedule: { fixedScheduleHours: [0, 12, 24], intervalHoursMin: 24, intervalHoursMax: 24, durationText: 'Minimum 24h de traitement IV/IM avant relais PO par ACT.' },
+        maxPerDoseMg: 120,
+      }),
+      branch('iv-im-ge20kg', amt('mg_per_kg', 2.4, 2.4), {
+        condition: { routes: ['IV', 'IM'], weightMinKg: 20 },
         schedule: { fixedScheduleHours: [0, 12, 24], intervalHoursMin: 24, intervalHoursMax: 24, durationText: 'Minimum 24h de traitement IV/IM avant relais PO par ACT.' },
         maxPerDoseMg: 120,
       }),

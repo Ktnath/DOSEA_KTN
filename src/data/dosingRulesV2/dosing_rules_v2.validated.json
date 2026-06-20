@@ -3877,8 +3877,8 @@
         "dilution_or_administration": "NaCl 0.9% ou G5%, 10 mg/mL, 5 min"
       },
       "dose_expression": {
-        "raw_current_posology": "2,4 mg/kg IV/IM à H0, H12, H24, puis q24h. Minimum 24h de traitement IV avant relais PO par ACT. Artésunate rectal 10 mg/kg si accès IV impossible. (Source: MSF)",
-        "validated_posology_text": "encoder comme règle conditionnelle/source-dépendante : 2,4 mg/kg IV/IM à H0, H12, H24, puis q24h. Minimum 24h de traitement IV avant relais PO par ACT. Artésunate rectal 10 mg/kg si accès IV impossible.\nParamètres retenus pour encodage, sous réserve de conformité source : dose app actuelle=2.4 mg/kg ; max/prise=120 mg ; fréquence/j=1 ; intervalle min=12 h.",
+        "raw_current_posology": "Poids < 20 kg : 3 mg/kg IV/IM à H0, H12, H24, puis q24h. Poids ≥ 20 kg : 2,4 mg/kg IV/IM à H0, H12, H24, puis q24h. Minimum 24h de traitement IV avant relais PO par ACT. Artésunate rectal 10 mg/kg si accès IV impossible. (Source: MSF ; tranches de poids : OMS, WHO Guidelines for the treatment of malaria)",
+        "validated_posology_text": "encoder comme règle conditionnelle/source-dépendante, avec palier de poids : poids < 20 kg = 3 mg/kg IV/IM à H0, H12, H24, puis q24h ; poids ≥ 20 kg = 2,4 mg/kg IV/IM à H0, H12, H24, puis q24h. Minimum 24h de traitement IV avant relais PO par ACT. Artésunate rectal 10 mg/kg si accès IV impossible.\nParamètres retenus pour encodage, sous réserve de conformité source : dose app actuelle (< 20 kg)=3 mg/kg, (≥ 20 kg)=2.4 mg/kg ; max/prise=120 mg ; fréquence/j=1 ; intervalle min=12 h.",
         "structured_parameters_from_review_table": {
           "dose_app_mg_per_kg": 2.4,
           "max_per_dose_mg": 120,
@@ -3904,11 +3904,11 @@
         "conditions_to_encode_text": "poids ; âge gestationnel / postmenstruel / postnatal ; indication clinique ; voie d’administration ; dose de charge / entretien / relais ; fréquence et intervalle ; forme / concentration disponible ; plafonds max/prise et/ou max/jour ; dilution / vitesse / modalités d’administration"
       },
       "sources": {
-        "declared_source_label": "MSF",
+        "declared_source_label": "MSF ; OMS (WHO Guidelines for the treatment of malaria)",
         "drive_urls": [
           "https://drive.google.com/file/d/1JtuLTdPcAqYicjh2Bc_Z0L9H7SGqg0Jv"
         ],
-        "source_section_or_page_text": "Source déclarée dans le fichier : MSF. URL Drive : https://drive.google.com/file/d/1JtuLTdPcAqYicjh2Bc_Z0L9H7SGqg0Jv. Section/page exacte à compléter pendant la revue humaine."
+        "source_section_or_page_text": "Source déclarée dans le fichier : MSF. URL Drive : https://drive.google.com/file/d/1JtuLTdPcAqYicjh2Bc_Z0L9H7SGqg0Jv. Tranches de poids (<20 kg = 3 mg/kg ; ≥20 kg = 2,4 mg/kg) ajoutées le 2026-06-20 d'après l'OMS (WHO Guidelines for the treatment of malaria), conformément à la remarque de revue 'encoder les tranches de poids'."
       },
       "safety": {
         "safety_flags": [
@@ -3917,7 +3917,7 @@
           "neonatal_or_prematurity_context",
           "unit_sensitive"
         ],
-        "reviewer_comment": "Ne pas encoder comme dose unique si plusieurs populations, indications ou voies sont présentes. Antipaludéen : encoder les tranches de poids et le calendrier des prises/doses.\nValidation utilisateur : toutes les propositions IA du premier passage sont validées par Dr KAPTO le 2026-06-20.",
+        "reviewer_comment": "Ne pas encoder comme dose unique si plusieurs populations, indications ou voies sont présentes. Antipaludéen : tranches de poids encodées (<20 kg = 3 mg/kg ; ≥20 kg = 2,4 mg/kg, source OMS) et calendrier des prises/doses.\nValidation utilisateur : toutes les propositions IA du premier passage sont validées par Dr KAPTO le 2026-06-20. Palier de poids ajouté et validé par Dr KAPTO le 2026-06-20 (source OMS).",
         "app_status": "Validé – prêt pour encodage V2"
       },
       "implementation": {
